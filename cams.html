@@ -28,6 +28,11 @@
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #333;
+      min-height: 200px; /* Asegura que el observer detecte la tarjeta */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .video-title {
       font-size: 14px;
@@ -37,9 +42,10 @@
     }
     video {
       width: 100%;
-      height: auto;
+      min-height: 180px; /* Espacio reservado para el video */
       background: black;
       border-radius: 4px;
+      display: block;
     }
   </style>
 </head>
@@ -121,8 +127,7 @@
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const card = entry.target;
-          const video = card.querySelector("video");
+          const video = entry.target;
           const url = video.dataset.url;
 
           if (!video.src && !video.dataset.loaded) {
@@ -135,13 +140,13 @@
             }
             video.dataset.loaded = "true";
           }
-          obs.unobserve(card); // Deja de observar una vez cargado
+          obs.unobserve(video); // Deja de observar una vez cargado
         }
       });
     }, { rootMargin: "200px" });
 
-    // Observar todas las tarjetas
-    document.querySelectorAll('.video-card').forEach(card => observer.observe(card));
+    // Observar todos los elementos <video>
+    document.querySelectorAll('.video-card video').forEach(video => observer.observe(video));
   </script>
 </body>
 </html>
