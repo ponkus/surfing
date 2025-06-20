@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Maiky Cams</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     body {
       margin: 0;
@@ -47,24 +46,13 @@
       border-radius: 4px;
       display: block;
     }
-    #playAll {
-      display: block;
-      margin: 20px auto 30px auto;
-      padding: 10px 30px;
-      font-size: 18px;
-      background: #222;
-      color: #fff;
-      border: 1px solid #444;
-      border-radius: 6px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
-  <button id="playAll">Reproducir todos los videos</button>
   <div class="grid" id="videoGrid"></div>
 
   <script>
+    // Lista de videos: título y URL
     const videos = [
       { title: "BIOLOGIA", url: "https://video2.estadodelmar.com.ar/mobile/lanormandina/index.m3u8" },
       { title: "BIOLOGIA 2", url: "https://video2.estadodelmar.com.ar/mobile/playagrande/index.m3u8" },
@@ -119,7 +107,7 @@
 
       const video = document.createElement("video");
       video.controls = true;
-      video.autoplay = true;
+      video.autoplay = false;
       video.muted = true;
       video.setAttribute("playsinline", "true");
       video.setAttribute("preload", "none");
@@ -141,14 +129,9 @@
           const video = entry.target;
           const url = video.dataset.url;
 
-          if (!video.src && !video.dataset.loaded) {
-            if (window.Hls && window.Hls.isSupported()) {
-              const hls = new Hls();
-              hls.loadSource(url);
-              hls.attachMedia(video);
-            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-              video.src = url;
-            }
+          // Solo cargar si el navegador soporta HLS nativo
+          if (!video.src && !video.dataset.loaded && video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = url;
             video.dataset.loaded = "true";
           }
           obs.unobserve(video); // Deja de observar una vez cargado
@@ -158,13 +141,6 @@
 
     // Observar todos los elementos <video>
     document.querySelectorAll('.video-card video').forEach(video => observer.observe(video));
-
-    // Botón para reproducir todos los videos (por si el navegador lo requiere)
-    document.getElementById('playAll').onclick = () => {
-      document.querySelectorAll('.video-card video').forEach(video => {
-        video.play().catch(()=>{});
-      });
-    };
   </script>
 </body>
 </html>
