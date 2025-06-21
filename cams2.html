@@ -55,6 +55,12 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    .msg-incompatible {
+      margin-top: 10px;
+      color: #f55;
+      font-size: 14px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -109,6 +115,9 @@
 
     const container = document.getElementById("videoGrid");
 
+    // Detecta si el navegador soporta HLS nativo
+    const hlsNativo = document.createElement('video').canPlayType("application/vnd.apple.mpegurl");
+
     // Crea las tarjetas de video sin cargar el stream aún
     videos.forEach(({title, url}) => {
       const card = document.createElement("div");
@@ -129,26 +138,19 @@
       card.appendChild(video);
       card.appendChild(titleDiv);
 
-      // Si el navegador NO soporta HLS nativo, agrega botón para cargar el video manualmente
-      if (!video.canPlayType("application/vnd.apple.mpegurl")) {
-        const btn = document.createElement("button");
-        btn.textContent = "Cargar video";
-        btn.className = "fallback-btn";
-        btn.onclick = () => {
-          video.src = url;
-          video.play();
-          btn.disabled = true;
-          btn.textContent = "Cargando...";
-        };
-        card.appendChild(btn);
+      // Si el navegador NO soporta HLS nativo, muestra mensaje de incompatibilidad
+      if (!hlsNativo) {
+        const msg = document.createElement("div");
+        msg.className = "msg-incompatible";
+        msg.textContent = "Tu navegador no soporta video en vivo HLS (.m3u8)";
+        card.appendChild(msg);
       }
 
       container.appendChild(card);
     });
 
     // Intersection Observer para cargar el video solo cuando es visible (solo HLS nativo)
-    // Solo usar Intersection Observer si el navegador soporta HLS nativo
-    if (document.createElement('video').canPlayType("application/vnd.apple.mpegurl")) {
+    if (hlsNativo) {
       const observer = new IntersectionObserver((entries, obs) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
