@@ -116,7 +116,7 @@
   .sp .more{font-size:14px;color:var(--dim);white-space:nowrap}
   .dialbig{width:300px;height:300px;display:block;margin:6px auto}
   .legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:16px;color:var(--muted);margin-top:8px}
-  .legend .k{width:34px;height:14px;border-radius:4px}
+  .legend .k{width:34px;height:14px;display:block}
   .sp .nm{font-size:18px;font-weight:700;color:var(--c);letter-spacing:1px}
   .sp .hv{font-size:32px;font-weight:700;margin:0;line-height:1.15}
   .sp .hv small{font-size:17px;color:var(--muted);font-weight:400}
@@ -469,10 +469,10 @@ function openSpot(spot, x, h, when){
     <div class="when">${d?`Swell principal ${compass(d.d)} de ${d.p.toFixed(0)} s: le entra el ${Math.round(d.e*100)}%`:"Sin swell"} · viento ${compass(h.wd)} ${Math.round(h.ws)} km/h</div>
     ${dialSVG(spot,x,h).replace('class="dial"','class="dialbig"')}
     <div class="legend">
-      <span class="k" style="background:${col};opacity:.6"></span><span>Mancha: cuánto swell le entra desde cada dirección (con este período). Borde = entra entero; centro = lo tapa la escollera.</span>
-      <span class="k" style="background:rgba(255,255,255,.15)"></span><span>Gris: la tierra. El círculo chico marca la mitad (50%).</span>
-      <span class="k" style="background:#fff;height:4px"></span><span>Flecha blanca: el swell principal, desde donde viene.</span>
-      <span class="k" style="background:repeating-linear-gradient(90deg,rgba(255,255,255,.6) 0 5px,transparent 5px 9px);height:3px"></span><span>Flecha punteada: el viento, desde donde sopla. Arriba es el Norte.</span>
+      <svg class="k" viewBox="0 0 34 14"><rect x="1" y="1" width="32" height="12" rx="4" fill="${col}" fill-opacity=".45" stroke="${col}"/></svg><span>Mancha: cuánto swell le entra desde cada dirección (con este período). Borde = entra entero; centro = lo tapa la escollera.</span>
+      <svg class="k" viewBox="0 0 34 14"><rect x="1" y="1" width="32" height="12" rx="4" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.3)"/></svg><span>Gris: la tierra. El círculo chico marca la mitad (50%).</span>
+      <svg class="k" viewBox="0 0 34 14"><path d="M2 7h26M23 3l5 4-5 4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Flecha blanca: el swell principal, desde donde viene.</span>
+      <svg class="k" viewBox="0 0 34 14"><path d="M2 7h26" stroke="rgba(255,255,255,.7)" stroke-width="1.8" stroke-dasharray="3 3"/><path d="M23 3l5 4-5 4" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.8" stroke-linecap="round"/></svg><span>Flecha punteada: el viento, desde donde sopla. Arriba es el Norte.</span>
     </div>`;
   $("spotModal").classList.add("open"); clearTimeout(spotT); spotT=setTimeout(()=>$("spotModal").classList.remove("open"),60000);
 }
