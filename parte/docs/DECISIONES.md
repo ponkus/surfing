@@ -2,6 +2,7 @@
 
 Formato: fecha · decisión · por qué · (quién). Lo más nuevo arriba.
 
+- **2026-09-27** · Integrar las cámaras de lineup.surf. · Maiky tiene cuenta paga (entra con mail y contraseña) y los creadores de lineup le dieron permiso para integrarlas. · (Maiky)
 - **2026-09-27** · Cámaras con el **reproductor nativo** del navegador (como `surf.html`) y fuentes en orden: lineup.surf → estadodelmar. hls.js solo como respaldo en navegadores sin HLS nativo. · La app es de uso personal de Maiky (su tablet y su cuenta de lineup). Android reproduce HLS nativo sin CORS. Si lineup rechaza la reproducción desde la app (en Chrome de compu respondió 503), la alternativa es mostrar sus páginas de cámara en un marco con la sesión de Maiky iniciada en Fully (lineup permite marcos), no saltear su protección. · (Maiky / Claude app)
 
 - **2026-09-27** · Formato de rating ampliado (solo campos nuevos): `stars` 0 = no se puede; `mar` ∈ glass/prolijo/soplado/algo_movido/movido; `size` opcional; `spot` "ambos" con 0 ★; `pred_all` con la predicción de los dos picos. Sin migración (no había ratings). · Los días "no" son datos clave para aprender dónde está el límite; el estado del mar (viento/mar de viento) es lo que el modelo más necesita calibrar. · (Maiky)
