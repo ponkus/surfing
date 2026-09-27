@@ -2,6 +2,9 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — corrección: "soplado" ≠ "movido"
+- Maiky corrigió la definición: soplado es el VIENTO (fuerte, ola bien formada pero "tocada"); movido es el MAR (desordenado). Son independientes. Corregido en DECISIONES.md y en el comentario del código.
+
 ## 2026-09-27 · Claude Code — definición de "soplado"
 - Definido con Maiky y anotado en DECISIONES.md: viento fuerte que pega en el mar y lo desarma; además cuesta agarrar la ola. Solo documentación + comentario en el código.
 
