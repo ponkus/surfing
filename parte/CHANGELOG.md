@@ -2,6 +2,16 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude app — cámaras por pico
+- Pedido de Maiky: al tocar un pico, ver sus dos cámaras, en pantalla dividida o una sola en grande.
+- **Tocar la tarjeta de Biología o Yacht abre sus 2 cámaras** (pantalla dividida). Tocar una → grande; tocar de nuevo → las dos. Pestañas Biología / Yacht, botones "Dividida" / "Una", "‹ Parte" para volver. Botón de cámara arriba (al lado del reloj) abre las del pico recomendado.
+- "Calificar" desde las cámaras abre el formulario con el pico y "Por cámara" ya marcados.
+- La brújula del pico pasa al botón "brújula ›" de la tarjeta.
+- Fuentes (`CFG.CAMS`): streams de **lineup.surf** (los favoritos de Maiky) y de respaldo los de **estadodelmar** (los de `surf.html`). Reproductor nativo (Android reproduce HLS solo, igual que `surf.html`); si una fuente no conecta en 12 s pasa a la siguiente; si ninguna, "Sin señal · tocá para reintentar". En navegadores sin HLS nativo (compu) carga hls.js de jsdelivr.
+- Los videos solo se cargan con la vista abierta; al cerrar se cortan. Se cierra sola a los 10 min sin tocar. El mar animado de fondo se pausa mientras tanto.
+- **Sin probar en la tablet todavía**: en la compu (Chrome) lineup rechazó el video pedido desde otra web (503) y hls.js no pudo por CORS; el reproductor nativo de Android pide distinto y puede andar. Validar en la tablet.
+- Tests: recorrido de cámaras (abrir, una/dividida, cambiar de pico, calificar, cerrar) con los videos bloqueados.
+
 ## 2026-09-27 · Claude Code — leyenda de la brújula visible en la tablet
 - Las muestras de la leyenda (spans con fondo) no se veían en el WebView de la tablet; ahora son pequeños SVG. Probado en la tablet.
 
