@@ -165,6 +165,10 @@
   .opt{font-family:inherit;font-size:17px;color:var(--text);background:var(--glass2);border:1.5px solid var(--stroke);border-radius:14px;padding:12px 16px;cursor:pointer;min-width:60px;transition:all .15s}
   .opt.sel{background:rgba(47,224,200,.16);border-color:#2fe0c8;color:#fff}
   .opts.stars .opt{font-size:20px;letter-spacing:2px;color:var(--ok)}
+  .opts.stars .opt.zero{font-size:16px;letter-spacing:0;color:var(--text)}
+  .opt-note{letter-spacing:0;text-transform:none;font-size:13px;color:var(--dim)}
+  .quickno{width:100%;margin-top:16px;font-family:inherit;font-size:18px;font-weight:700;padding:14px;border-radius:14px;cursor:pointer;
+           background:rgba(255,107,122,.14);border:1.5px solid rgba(255,107,122,.55);color:#ffd5da}
   .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
   .btn{font-family:inherit;font-size:17px;font-weight:700;border-radius:14px;padding:13px 22px;border:0;cursor:pointer}
   .btn.primary{background:linear-gradient(135deg,#2fe0c8,#3aa0ff);color:#04202a}
@@ -225,16 +229,19 @@
   <div class="sheet glass">
     <h2>¿Cómo está el mar?</h2>
     <div class="when" id="rateWhen"></div>
-    <div class="q">Pico</div>
+    <button class="quickno" id="quickNo">Hoy no se puede · guardar 0 ★</button>
+    <div class="q">Pico <span class="opt-note">(si no se puede, no hace falta)</span></div>
     <div class="opts" data-k="spot"><button class="opt" data-v="Biologia">Biología</button><button class="opt" data-v="Yacht">Yacht</button></div>
-    <div class="q">Tamaño real</div>
+    <div class="q">Cómo estaba el mar</div>
+    <div class="opts" data-k="mar"><button class="opt" data-v="glass">Glass</button><button class="opt" data-v="prolijo">Prolijo</button><button class="opt" data-v="soplado">Soplado</button><button class="opt" data-v="algo_movido">Algo movido</button><button class="opt" data-v="movido">Movido</button></div>
+    <div class="q">Tamaño real <span class="opt-note">(opcional)</span></div>
     <div class="opts" data-k="size">
       <button class="opt" data-v="plano">Plano</button><button class="opt" data-v="rodilla">Rodilla</button><button class="opt" data-v="cintura">Cintura</button>
       <button class="opt" data-v="pecho">Pecho</button><button class="opt" data-v="cabeza">Cabeza</button><button class="opt" data-v="mas">+ Cabeza</button>
     </div>
     <div class="q">Calidad</div>
     <div class="opts stars" data-k="stars">
-      <button class="opt" data-v="1">★</button><button class="opt" data-v="2">★★</button><button class="opt" data-v="3">★★★</button><button class="opt" data-v="4">★★★★</button><button class="opt" data-v="5">★★★★★</button>
+      <button class="opt zero" data-v="0">0 · No se puede</button><button class="opt" data-v="1">★</button><button class="opt" data-v="2">★★</button><button class="opt" data-v="3">★★★</button><button class="opt" data-v="4">★★★★</button><button class="opt" data-v="5">★★★★★</button>
     </div>
     <div class="q">Lo viste</div>
     <div class="opts" data-k="src"><button class="opt sel" data-v="agua">En el agua</button><button class="opt" data-v="camara">Por cámara</button><button class="opt" data-v="orilla">Desde la orilla</button></div>
@@ -407,7 +414,13 @@ function evalHour(h, spot){
   if(ti.near&&Math.abs(ti.near.dm)<=CFG.BOMBEO_MIN&&hb>=0.5&&hb<=1.6){ bombeo=true; s*=1+(Tp>=9?0.15:0.07)*(spot==="Yacht"?1.3:1); }
   if(Tp>=9) s*=1.15;
   s=clamp(s,0,1);
-  return {spot,hb,stars:Math.round(s*10)/2,score:s,g,tq,ws,dom,detail,bombeo,ti};
+  return {spot,hb,stars:Math.round(s*10)/2,score:s,g,tq,ws,dom,detail,bombeo,ti,chop,sz:sizeScore(hb)};
+}
+// por qué no se puede: el factor que más limita en el modelo (en vez de un "sin ola" que no siempre es cierto)
+function whyNot(r){
+  if(r.hb<0.15) return "Plano";
+  const f=[{k:"Muy chico",v:r.sz},{k:"Movido",v:Math.min(r.ws,Math.max(0.3,1-r.chop/0.8))},{k:r.g>1.05?"Sin agua":"Mucha agua",v:r.tq.q}];
+  return f.sort((a,b)=>a.v-b.v)[0].k;
 }
 function chipsFor(r,h){
   const c=[];
@@ -583,7 +596,7 @@ function render(){
     $("nextwin").innerHTML = (nw
       ? `<span class="tag">${tagNext}</span><span>${dayLabel(nw.h.t.slice(0,10),today)} ${winTxt(nw)}</span>`
       : `<span class="tag">${tagNext}</span><span>No aparece en los próximos días</span>`)+(alt?altTxt(alt,true):""); }
-  $("spotname").textContent = none?(/^(Hoy|Mañana)$/.test(dayWord)?dayWord+" no":"Sin ola"):NAME[best];
+  $("spotname").textContent = none?(/^(Hoy|Mañana)$/.test(dayWord)?dayWord+" no":whyNot(r)):NAME[best];
   $("height").innerHTML = none?`<small style="margin:0">máx</small> ${rangeTxt(Math.max(R.Biologia.hb,R.Yacht.hb))}`:rangeTxt(r.hb);
   $("gauge").style.display = none?"none":"";
   $("gauge").innerHTML = gaugeSVG(r.stars, none?"#8aa3b8":COLOR[best][0], none?"#eef3f7":COLOR[best][1]);
@@ -635,7 +648,7 @@ function render(){
     card.onclick = () => pickDay(date===today?null:date);
     card.onkeydown = e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); card.onclick(); } };
     card.innerHTML = `<div class="top"><span>${lbl}</span><span class="wxd">${icon}${Math.round(tmax)}°<span style="color:var(--dim)">/${Math.round(tmin)}°</span></span></div>
-      ${top.r.score<0.1?`<div class="who" style="color:var(--dim)">Sin ola</div><div class="meta">máx ${(top.r.hb*1.2).toFixed(1)} m · viento ${compass(top.h.wd)} ${Math.round(top.h.ws)}</div>`
+      ${top.r.score<0.1?`<div class="who" style="color:var(--dim)">${whyNot(top.r)}</div><div class="meta">máx ${(top.r.hb*1.2).toFixed(1)} m · viento ${compass(top.h.wd)} ${Math.round(top.h.ws)}</div>`
       :`<div class="who" style="color:${COLOR[top.r.spot][0]}">${NAME[top.r.spot]} <span style="font-weight:400;color:var(--muted);font-size:17px">${(top.r.hb*0.8).toFixed(1)}–${(top.r.hb*1.2).toFixed(1)} m</span></div>
         <div class="meta"><span class="dots" style="display:inline-flex;vertical-align:middle;--c:${COLOR[top.r.spot][0]}">${dots(top.r.stars)}</span> &nbsp;${fmtT(top.from)}–${fmtT(top.to)} · ${compass(top.h.wd)} ${Math.round(top.h.ws)} km/h</div>`}
       ${outside?`<div class="altnote">tu horario de hoy ya pasó</div>`:alt?`<div class="altnote">fuera de tu horario: ${fmtT(alt.from)}–${fmtT(alt.to)} · ${alt.r.stars} ★</div>`:""}
@@ -792,18 +805,27 @@ document.querySelectorAll(".opts").forEach(g=>g.addEventListener("click",e=>{
 $("rateBtn").onclick=()=>{ $("rateWhen").textContent="Se guarda con la hora exacta: "+new Date().toLocaleString("es-AR",{hour12:false}); $("modal").classList.add("open"); };
 $("cancel").onclick=()=>$("modal").classList.remove("open");
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.remove("open"); });
-$("save").onclick=async()=>{
-  if(!sel.spot||!sel.size||!sel.stars){ toast("Elegí pico, tamaño y calidad"); return; }
-  const now=Date.now(), h=D.H[currentHourIdx()], r=evalHour(h,sel.spot);
-  const rec={ ts:new Date(now).toISOString(), spot:sel.spot, size:sel.size, size_m:SIZE_M[sel.size], stars:+sel.stars, src:sel.src,
+// Formato de rating (datos de entrenamiento — ver DECISIONES.md 27/09): se AGREGARON campos, no se cambió ninguno.
+//   stars 0 = "no se puede" · spot "ambos" si no se eligió pico (solo con 0 ★) · size/size_m null si no se cargó
+//   mar: glass | prolijo | soplado | algo_movido | movido | null  (palabras de Maiky) · pred_all: predicción del modelo para los dos picos
+async function saveRating(){
+  const stars=+sel.stars;
+  if(sel.stars==null){ toast("Elegí la calidad (0 si no se puede)"); return; }
+  if(stars>0 && !sel.spot){ toast("Elegí el pico"); return; }
+  const now=Date.now(), h=D.H[currentHourIdx()], spot=sel.spot||"ambos";
+  const P={}; SPOTS.forEach(sp=>{ const x=evalHour(h,sp); P[sp]={hb:+x.hb.toFixed(2), stars:x.stars, gamma:+x.g.toFixed(2), bombeo:x.bombeo, model:"v2"}; });
+  const r=evalHour(h, sel.spot||(P.Biologia.stars>=P.Yacht.stars?"Biologia":"Yacht"));
+  const rec={ ts:new Date(now).toISOString(), spot, size:sel.size||null, size_m:sel.size?SIZE_M[sel.size]:null, stars, mar:sel.mar||null, src:sel.src,
     forecast:{hour:h.t, parts:h.parts, wind:{spd:h.ws,dir:h.wd,gust:h.wg}, ww:h.ww, eta:r.ti.y, rising:r.ti.rising, min_to_turn:r.ti.near?Math.round(r.ti.near.dm):null, sst:h.sst},
-    pred:{hb:+r.hb.toFixed(2), stars:r.stars, gamma:+r.g.toFixed(2), bombeo:r.bombeo, model:"v2"} };
+    pred:{hb:+r.hb.toFixed(2), stars:r.stars, gamma:+r.g.toFixed(2), bombeo:r.bombeo, model:"v2"}, pred_all:P };
   const all=getRatings(); all.push(rec); localStorage.setItem("pg_ratings",JSON.stringify(all));
   if(CFG.SHEETS_URL){ try{ await fetch(CFG.SHEETS_URL,{method:"POST",mode:"no-cors",body:JSON.stringify(rec)}); }catch(e){} }
-  $("modal").classList.remove("open"); ["spot","size","stars"].forEach(k=>delete sel[k]);
+  $("modal").classList.remove("open"); ["spot","size","stars","mar"].forEach(k=>delete sel[k]);
   document.querySelectorAll('.opts:not([data-k="src"]) .opt').forEach(x=>x.classList.remove("sel"));
-  toast("Guardado ✓ gracias por entrenar el modelo"); renderRateMeta();
-};
+  toast(stars===0?"Guardado ✓ día \"no se puede\"":"Guardado ✓ gracias por entrenar el modelo"); renderRateMeta();
+}
+$("save").onclick=saveRating;
+$("quickNo").onclick=()=>{ sel.stars="0"; saveRating(); };
 $("expJson").onclick=()=>{ const b=new Blob([JSON.stringify(getRatings(),null,1)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`ratings_playagrande_${new Date().toISOString().slice(0,10)}.json`; a.click(); };
 function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2000); }
 
