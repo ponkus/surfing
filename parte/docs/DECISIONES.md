@@ -2,6 +2,10 @@
 
 Formato: fecha · decisión · por qué · (quién). Lo más nuevo arriba.
 
+- **2026-09-27** · Primero preparar la tablet (ADB, desde la Mac con Claude Code) y después instalar la app. · Pedido de Maiky: tablet lenta y con apps de Google que no se usan. · (Maiky)
+- **2026-09-27** · No flashear firmware alternativo. · No existen ROMs mantenidas para TJD MT-1025 y desbloquear el bootloader en Unisoc suele requerir clave del fabricante: riesgo de brick sin beneficio seguro. Limpieza por ADB reversible en su lugar. · (Claude app)
+- **2026-09-27** · Fully Kiosk Browser en vez de PWA instalada. · El launcher de la tablet no permite accesos directos: Chrome no ofrece "Agregar a pantalla principal". · (Claude app)
+
 - **2026-09-27** · Diseño fijo 1280×800 escalado con `transform: scale` (no layout fluido), y app instalable (PWA) en pantalla completa. · En la tablet, con las barras de Chrome, el layout fluido se pisaba. Escalar garantiza la misma composición en cualquier pantalla; la PWA elimina las barras sin root ni apps de kiosco. · (Claude app, a partir de la foto de Maiky)
 - **2026-09-27** · El proyecto vive en `ponkus/surfing/parte/` y se publica con el GitHub Pages que ya existía. · Hosting gratis ya andando; las cámaras de estadodelmar del mismo repo se pueden integrar a la app. · (Claude app)
 - **2026-09-27** · Memoria compartida: `CLAUDE.md` + `parte/docs/*` + `CHANGELOG.md`, actualizados en cada cambio. · Que Claude Code, la app de Claude y Maiky sepan siempre qué se hizo y por qué. · (Maiky / Claude app)

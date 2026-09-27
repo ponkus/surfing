@@ -1,6 +1,6 @@
 # Estado del proyecto
 
-**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27, mediodía (Claude app).
+**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27 11:30 (Claude app).
 
 ## Hecho
 - Geometría real de Playa Grande (OSM) y tablas de exposición/viento por pico (`model/`).
@@ -12,11 +12,13 @@
 
 ## En curso
 - **Tablet TJD MT-1025**: revivió con cargador USB-A. Anda fluida en la versión completa (no hace falta `?lite` por ahora). Falta dato de Android/RAM/chip (no urgente).
-- **PR #5** (encaje + pantalla completa + PWA): esperando que Maiky lo mergee. Después: instalarla en la tablet con "Agregar a pantalla principal".
+- PR #5 publicado: en la tablet se ve bien, sin bloques pisados.
+- **Preparar la tablet por ADB** (lo hace Claude Code desde la Mac): seguir `docs/TABLET.md`. Pendiente que Maiky active la depuración USB.
+- Batería baja rápido: probablemente degradada por la descarga profunda (hardware). La limpieza no lo arregla; va a vivir enchufada.
 
 ## Siguiente (en orden)
-1. Mergear PR #5 e instalar la app en la tablet (Chrome → ⋮ → Agregar a pantalla principal / Instalar app).
-2. Configurar la tablet: debloat por ADB, que abra la app al prender (la PWA ya evita las barras; modo kiosco solo si hace falta bloquear salir).
+1. Preparar la tablet por ADB (`docs/TABLET.md`) — Claude Code en la Mac.
+2. Instalar **Fully Kiosk Browser** y apuntarlo a la app (Chrome no ofrece "Agregar a pantalla principal" en esta tablet).
 3. Ratings a **Google Sheet** (Apps Script Web App → `CFG.SHEETS_URL`), para no depender de la tablet.
 4. **Marea oficial del SHN** (Mar del Plata): reemplazar/corregir `TIDE_OFFSET_MIN`.
 5. Integrar las **cámaras** de estadodelmar (Playa Grande / Yacht) en la app, al lado de "Calificar" — ya están en `surf.html`.
