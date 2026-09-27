@@ -92,6 +92,7 @@ adb shell settings put system screen_off_timeout 1800000    # 30 min si está a 
 - Brillo: automático o ~50 % (menos calor, menos consumo).
 
 ## 5. Después (siguiente etapa, no en esta sesión salvo que Maiky lo pida)
+- **Hecho (27/09)**: Fully Kiosk instalado. Start URL: `https://ponkus.github.io/surfing/parte/?horario=0630-1200`. Launch on Boot ✓, Keep Screen On ✗ (manda Android), exento de ahorro de batería.
 - Instalar **Fully Kiosk Browser** (Play Store) → URL `https://ponkus.github.io/surfing/parte/`, pantalla completa, arrancar al prender.
   (Chrome en esta tablet **no ofrece "Agregar a pantalla principal"**: el launcher no soporta accesos directos. Probado 27/09/2026.)
 - Protección de batería: ESP32 + relé + MacroDroid (corta 80 %, reconecta 40 %).
