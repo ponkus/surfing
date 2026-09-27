@@ -2,6 +2,12 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — arreglo: la web arrancaba agrandada en Fully Kiosk
+- Problema (Maiky): en la tablet, al abrir Fully la web aparecía ~16 % más grande y cortada; había que achicarla con los dedos. Reproducido con captura por ADB: Fully arranca con zoom = densidad de pantalla (186/160 = 1,16) e `innerWidth/innerHeight` dan un área mayor que la visible.
+- `fit()` ahora usa el área realmente visible (`visualViewport`), se recalcula al cargar y cuando cambia el zoom. Viewport con `maximum-scale=1, user-scalable=no` (no se agranda con los dedos por accidente).
+- Probado en la tablet (servida desde la Mac) antes de publicar: entra justa. Tests OK.
+- Fully Kiosk instalado y configurado: pantalla completa sin barras, Launch on Boot, Keep Screen On desactivado (manda Android: siempre prendida enchufada, 30 min a batería), exento de ahorro de batería. El PIN de bloqueo se queda (decisión de Maiky).
+
 ## 2026-09-27 · Claude Code — tablet: actualizaciones y optimización
 - ¿Subir de Android 11? Oficial: no hay (fabricante y Google Play dicen "actualizado"; parche de seguridad 2022-03). No oficial (GSI): posible en teoría (Treble, bootloader desbloqueable) pero borra todo, drivers de Allwinner suelen fallar y no hay firmware de fábrica para recuperar → descartado (`DECISIONES.md`).
 - La tablet es **Android Go**. El módulo de sistema de Google Play queda en 2021-10 (Google no le manda más).

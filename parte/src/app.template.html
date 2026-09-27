@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07121f">
 <title>Playa Grande</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -629,7 +629,10 @@ requestAnimationFrame(frame);
 
 /* ===================== ENCAJE EN PANTALLA + PANTALLA COMPLETA ===================== */
 function fit(){
-  const app=document.querySelector(".app"), W=innerWidth, H=innerHeight;
+  // Área realmente visible: algunos navegadores de kiosco (Fully en la tablet TJD) arrancan con zoom
+  // = densidad de pantalla (1,16) y innerWidth/innerHeight dan un área más grande que la que se ve.
+  const vv=window.visualViewport;
+  const app=document.querySelector(".app"), W=vv?Math.min(innerWidth,vv.width):innerWidth, H=vv?Math.min(innerHeight,vv.height):innerHeight;
   const mobile = W<900 && H>W;                              // celular vertical: layout apilado con scroll
   document.body.classList.toggle("mobile", mobile);
   if(mobile){ app.style.transform=app.style.width=app.style.height=""; return; }
@@ -637,6 +640,8 @@ function fit(){
   app.style.width=(W/s)+"px"; app.style.height=(H/s)+"px"; app.style.transform=`scale(${s})`;
 }
 addEventListener("resize",fit); addEventListener("orientationchange",()=>setTimeout(fit,300)); fit();
+if(window.visualViewport) visualViewport.addEventListener("resize",fit);
+addEventListener("load",()=>{ fit(); setTimeout(fit,500); setTimeout(fit,2000); });   // el WebView puede ajustar el zoom después de cargar
 const isFull=()=>!!document.fullscreenElement || matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches;
 function goFull(){
   const el=document.documentElement;
