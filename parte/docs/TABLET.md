@@ -72,6 +72,13 @@ adb shell pm list packages -d | sort > paquetes_deshabilitados_despues.txt
 ```
 Y dejar un script `revertir.sh` con un `adb shell pm enable <paquete>` / `cmd package install-existing <paquete>` por cada cambio.
 
+## 3b. Actualizaciones (lo que sí se puede)
+- Android no se actualiza (ver `DECISIONES.md`). Lo que importa para la web se actualiza por Play Store:
+  - **Android System WebView** (lo usa Fully Kiosk): `adb shell am start -a android.intent.action.VIEW -d "market://details?id=com.google.android.webview"` y que Maiky toque Actualizar.
+  - Play Store trabado en versión vieja: Play Store → Configuración → Acerca de → "Actualizar Play Store".
+- Exceptuar del ahorro de batería el navegador de la app: `adb shell cmd deviceidle whitelist +com.android.chrome` (y Fully Kiosk cuando se instale).
+- Después de reiniciar, la depuración inalámbrica cambia de puerto: `adb mdns services` lo muestra y `adb connect <IP:puerto>` reconecta (ya vinculada, sin código).
+
 ## 4. Ajustes de rendimiento (reversibles)
 ```bash
 adb shell settings put global window_animation_scale 0.5

@@ -8,11 +8,11 @@
 - App v2 (`src/app.template.html` → `index.html`): diseño nuevo con cielo según la hora, mar animado con datos reales, dial por pico, marea con ventanas de bombeo, clima, hoy + 2 días, "próxima buena", ratings con exportación.
 - Tests headless con datos reales (`tests/run.py`): 4 horarios, flujo de rating. Pasan.
 - Documentación y memoria compartida (este archivo, `CLAUDE.md`, `DECISIONES.md`, `CHANGELOG.md`).
-- **Tablet preparada por ADB** (27/09, Claude Code): diagnóstico, 14 apps de Google desactivadas + Opera Mini desinstalada, animaciones 0,5×, pantalla siempre prendida enchufada, 30 min a batería, brillo 50 %. Play Store actualiza solo por Wi-Fi. Todo reversible: `docs/tablet/revertir.sh`. Detalle y diagnóstico en `docs/tablet/`.
+- **Tablet preparada por ADB** (27/09, Claude Code): diagnóstico, 14 apps de Google desactivadas + Opera Mini desinstalada, animaciones 0,5×, pantalla siempre prendida enchufada, 30 min a batería, brillo 50 %. Play Store actualiza solo por Wi-Fi. Después: WebView y Play Store actualizados, Chrome exento de ahorro de batería, voz de Google y Files desactivadas (3,1 GB libres tras reiniciar). Todo reversible: `docs/tablet/revertir.sh`. Detalle y diagnóstico en `docs/tablet/`.
 - **Publicada** en `https://ponkus.github.io/surfing/parte/` (PR #4). Probada en la tablet: fluida, pero se pisaba dentro de Chrome → arreglado (encaje 1280×800 escalado + pantalla completa + app instalable), en PR #5.
 
 ## En curso
-- **Tablet TJD MT-1025** (en realidad MT-1025QU): Android 11, chip **Allwinner** (`sun50iw10p1`, probablemente A133), 4 GB RAM. Anda fluida en la versión completa (no hace falta `?lite` por ahora).
+- **Tablet TJD MT-1025** (en realidad MT-1025QU): Android 11, chip **Allwinner** (`sun50iw10p1`, probablemente A133), 4 GB RAM. Es **Android Go**, parche de seguridad 2022-03, sin más actualizaciones de sistema (ni fabricante ni Google). Chrome y **WebView 153** al día, Play Store 53. Anda fluida en la versión completa (no hace falta `?lite` por ahora).
 - PR #5 publicado: en la tablet se ve bien, sin bloques pisados.
 - **ADB por USB es inestable** en esta tablet (se desconecta / queda `offline` con 2 cables y 2 puertos). Se usó **depuración inalámbrica** (Android 11: `adb pair` + `adb connect`), anda perfecto. Ver `docs/TABLET.md`.
 - Batería baja rápido: probablemente degradada por la descarga profunda (hardware). La limpieza no lo arregla; va a vivir enchufada.

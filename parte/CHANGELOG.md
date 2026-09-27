@@ -2,6 +2,14 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — tablet: actualizaciones y optimización
+- ¿Subir de Android 11? Oficial: no hay (fabricante y Google Play dicen "actualizado"; parche de seguridad 2022-03). No oficial (GSI): posible en teoría (Treble, bootloader desbloqueable) pero borra todo, drivers de Allwinner suelen fallar y no hay firmware de fábrica para recuperar → descartado (`DECISIONES.md`).
+- La tablet es **Android Go**. El módulo de sistema de Google Play queda en 2021-10 (Google no le manda más).
+- Actualizado lo que importa para la web: **WebView 124 → 153** (el que usará Fully Kiosk), **Play Store 43 → 53**. Chrome ya estaba en 153.
+- Registro de fallos: sin crashes ni reinicios; solo avisos internos (Chrome, `com.yhk.qeota`) y 3 demoras de Play Services.
+- Chrome exento de la optimización de batería (`deviceidle whitelist`); desactivadas voz de Google (`tts`) y Files de Google (`nbu.files`).
+- Después de reiniciar: memoria libre 2,8 → 3,1 GB; CPU en reposo ~94 % libre. Ajustes anteriores persisten.
+
 ## 2026-09-27 · Claude Code — tablet preparada por ADB
 - Diagnóstico: MT-1025QU, Android 11, chip Allwinner (`sun50iw10p1`), 4 GB RAM, batería "buena" según Android. Lo que más consume: pantalla y Chrome. Archivos en `docs/tablet/`.
 - ADB por USB inestable (desconexiones y `offline` con 2 cables/puertos) → se usó depuración inalámbrica. Documentado en `TABLET.md`.

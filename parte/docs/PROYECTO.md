@@ -20,7 +20,7 @@ Maiky (Juan Luis Grassi), bodyboarder de Mar del Plata. Usa también las cámara
    Las tablas de geometría (`model/tables.json`) están pensadas para pasar tal cual a la placa (lookup tables).
 
 ## Hardware de la fase 1
-- Tablet **TJD MT-1025** (modelo MT-1025QU, firmware `MT-1025QU_V1.00_20221125`), Android 11, 10.1", chip **Allwinner** `sun50iw10p1` (probablemente A133, 4 núcleos), **4 GB RAM**, batería 2800 mAh según Android. Estaba muerta por descarga profunda; revivió con cargador **USB-A 5V 2A** (el cargador USB-C del iPhone no le entrega carga).
+- Tablet **TJD MT-1025** (modelo MT-1025QU, firmware `MT-1025QU_V1.00_20221125`), Android 11, 10.1", chip **Allwinner** `sun50iw10p1` (probablemente A133, 4 núcleos), **4 GB RAM**, batería 2800 mAh según Android. **Android Go**, parche de seguridad 2022-03: no recibe más actualizaciones de sistema (Chrome/WebView sí, por Play Store). Estaba muerta por descarga profunda; revivió con cargador **USB-A 5V 2A** (el cargador USB-C del iPhone no le entrega carga).
 - Plan: **sin root**. Debloat con ADB (`pm uninstall -k --user 0`), modo kiosco (p. ej. Fully Kiosk Browser).
 - Protección de batería (va a estar enchufada 24/7): sin root Android no puede cortar la carga. Plan: **ESP32 + módulo relé** que corta el USB, comandado por **MacroDroid** (lee batería: corta al 80 %, reconecta al 40 %).
 
