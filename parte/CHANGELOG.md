@@ -2,6 +2,15 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — diseño legible a 2 m + días interactivos
+- Pedido de Maiky: mal contraste ("todo muy azul"), datos importantes que hay que acercarse para ver; la tablet va como portarretratos y se tiene que leer a 2 m.
+  - Tarjetas oscuras y neutras (casi opacas) en vez de vidrio azul; textos claros (muted .86, dim .64); cielo de día menos azul.
+  - Todo más grande: pico 84 px, altura 50, chips 18, marea 30, clima 36, días 25; textos secundarios 15–18.
+  - La columna derecha ya no deja franja vacía (la marea crece y el gráfico es más alto, con horas más grandes). Sin anillo "0 de 5" cuando no hay ola. En cada pico, una sola línea técnica.
+- **Días interactivos**: tocar Mañana / otro día muestra ese día en el cuadro central (mejor hora), la marea y el clima de esa hora, y "Franja buena" de ese día. "✕ Ahora" o tocar Hoy vuelve; vuelve solo a los 90 s (es una pantalla fija).
+- **Clima real del momento**: la tarjeta de Hoy muestra el clima de ahora y avisa "lluvia desde las HH:MM"; los otros días muestran el clima que predomina con luz (Open-Meteo daily da el peor momento del día: una hora de llovizna pintaba todo el día de lluvia).
+- Probado en la tablet con datos en vivo y tocando la pantalla. Tests OK. Modelo sin cambios (`pred.model` sigue v2).
+
 ## 2026-09-27 · Claude Code — botón de pantalla completa inteligente + carga a prueba de cortes
 - El botón de pantalla completa se esconde solo cuando la página ya ocupa toda la pantalla (Fully Kiosk, F11) y en equipos sin esa función (iPhone). Sigue apareciendo en celulares Android, iPad y compus.
 - Carga de datos: corte a los 20 s si Open-Meteo no responde (el 27/09 la API de pronóstico se colgó y la pantalla quedaba vacía hasta el próximo ciclo de 30 min); reintento cada 1 min si falla; al arrancar se muestran enseguida los últimos datos guardados (`pg_cache`) mientras llegan los nuevos. Probado simulando la API colgada.

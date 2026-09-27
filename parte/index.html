@@ -15,8 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --text:#f3f8fc; --muted:rgba(233,243,250,.68); --dim:rgba(233,243,250,.42);
-    --glass:rgba(8,20,34,.46); --glass2:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.10);
+    --text:#f6f9fb; --muted:rgba(240,245,249,.86); --dim:rgba(240,245,249,.64);
+    --glass:rgba(10,14,20,.80); --glass2:rgba(255,255,255,.07); --stroke:rgba(255,255,255,.14);
     --bio:#2fe0c8; --yacht:#ff8f6b; --good:#3ee39a; --ok:#ffd166; --bad:#ff6b7a;
     --sky1:#050b18; --sky2:#0d1f35;
   }
@@ -36,11 +36,11 @@
 
   /* top bar */
   .bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:3px;font-size:14px;color:var(--muted)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:3px;font-size:15px;color:var(--muted)}
   .brand svg{width:28px;height:28px}
   .clock{text-align:right}
-  .clock .t{font-size:30px;font-weight:300;letter-spacing:1px;line-height:1}
-  .clock .d{font-size:13px;color:var(--dim);margin-top:3px}
+  .clock .t{font-size:34px;font-weight:500;letter-spacing:1px;line-height:1}
+  .clock .d{font-size:15px;color:var(--muted);margin-top:3px}
 
   .main{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;min-height:0}
   body.mobile .main{grid-template-columns:1fr}
@@ -57,59 +57,63 @@
   body.mobile .wx{grid-template-columns:repeat(3,1fr)}
   body.mobile .rate{grid-column:1/-1;padding:16px;flex-direction:row}
   .glass{background:var(--glass);border:1px solid var(--stroke);border-radius:24px;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%)}
-  .lite .glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(8,20,34,.72)}
+  .lite .glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(10,14,20,.90)}
 
   /* hero */
-  .hero{padding:22px 26px;display:flex;flex-direction:column;gap:14px;min-height:0}
+  .hero{padding:20px 26px;display:flex;flex-direction:column;gap:12px;min-height:0}
   .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
-  .eyebrow{font-size:13px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;display:flex;align-items:center;gap:8px}
-  .live{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(62,227,154,.7);animation:pulse 2s infinite}
-  @keyframes pulse{70%{box-shadow:0 0 0 10px rgba(62,227,154,0)}100%{box-shadow:0 0 0 0 rgba(62,227,154,0)}}
-  .spotname{font-size:76px;font-weight:800;line-height:.95;letter-spacing:-1px;margin-top:6px;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .height{font-size:44px;font-weight:300;margin-top:6px}
+  .eyebrow{font-size:16px;letter-spacing:2.5px;color:var(--muted);font-weight:600;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  .eyebrow .back{display:none;margin-left:6px;white-space:nowrap;padding:4px 12px;border-radius:999px;border:1px solid var(--stroke);background:var(--glass2);color:var(--text);font:inherit;font-size:13px;letter-spacing:1px;cursor:pointer}
+  .eyebrow .back.show{display:inline-block}
+  .live{width:10px;height:10px;flex:none;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(62,227,154,.7);animation:pulse 2s infinite}
+  .live.off{background:#ffd166;animation:none}
+  @keyframes pulse{70%{box-shadow:0 0 0 6px rgba(62,227,154,0)}100%{box-shadow:0 0 0 0 rgba(62,227,154,0)}}
+  .spotname{font-size:84px;font-weight:800;line-height:.95;letter-spacing:-1px;margin-top:6px;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .height{font-size:50px;font-weight:400;margin-top:6px}
   .height b{font-weight:700}
-  .height small{font-size:20px;color:var(--muted);margin-left:4px}
+  .height small{font-size:24px;color:var(--muted);margin-left:4px}
   .gauge{position:relative;width:132px;height:132px;flex:none}
   .gauge svg{width:100%;height:100%;transform:rotate(-90deg)}
   .gauge .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .gauge .val b{font-size:40px;font-weight:700;line-height:1}
-  .gauge .val span{font-size:12px;color:var(--dim);letter-spacing:2px;margin-top:4px}
+  .gauge .val span{font-size:14px;color:var(--muted);letter-spacing:2px;margin-top:4px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{display:flex;align-items:center;gap:8px;padding:8px 13px 8px 10px;border-radius:999px;background:var(--glass2);border:1px solid var(--stroke);font-size:15px;color:var(--muted)}
-  .chip svg{width:18px;height:18px;flex:none}
-  .chip.good{color:#c9f7e2;border-color:rgba(62,227,154,.35);background:rgba(62,227,154,.10)}
-  .chip.ok{color:#ffeab3;border-color:rgba(255,209,102,.30);background:rgba(255,209,102,.08)}
-  .chip.bad{color:#ffc6cc;border-color:rgba(255,107,122,.30);background:rgba(255,107,122,.08)}
+  .chip{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 11px;border-radius:999px;background:var(--glass2);border:1.5px solid var(--stroke);font-size:18px;font-weight:500;color:var(--text)}
+  .chip svg{width:21px;height:21px;flex:none}
+  .chip.good{color:#d6fbe9;border-color:rgba(62,227,154,.6);background:rgba(62,227,154,.16)}
+  .chip.ok{color:#fff0c4;border-color:rgba(255,209,102,.55);background:rgba(255,209,102,.13)}
+  .chip.bad{color:#ffd5da;border-color:rgba(255,107,122,.55);background:rgba(255,107,122,.13)}
 
-  .nextwin{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:16px;background:linear-gradient(90deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid var(--stroke);font-size:16px;color:var(--muted)}
+  .nextwin{display:flex;align-items:center;gap:12px;padding:11px 16px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid var(--stroke);font-size:19px;color:var(--muted)}
   .nextwin b{color:var(--text);font-weight:600}
-  .nextwin .tag{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;white-space:nowrap}
+  .nextwin .tag{font-size:13px;letter-spacing:2px;color:var(--dim);font-weight:600;text-transform:uppercase;white-space:nowrap}
   .spots{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:auto}
   .sp{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--glass2);border:1px solid var(--stroke);position:relative;overflow:hidden}
   .sp.win{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 30%,transparent) inset}
-  .sp .dial{width:104px;height:104px;flex:none}
-  .sp .nm{font-size:15px;font-weight:600;color:var(--c);letter-spacing:.5px}
-  .sp .hv{font-size:28px;font-weight:700;margin:2px 0}
-  .sp .hv small{font-size:14px;color:var(--muted);font-weight:400}
+  .sp .dial{width:96px;height:96px;flex:none}
+  .sp .nm{font-size:18px;font-weight:700;color:var(--c);letter-spacing:1px}
+  .sp .hv{font-size:32px;font-weight:700;margin:0;line-height:1.15}
+  .sp .hv small{font-size:17px;color:var(--muted);font-weight:400}
   .dots{display:flex;gap:4px;margin:4px 0}
-  .dots i{width:16px;height:6px;border-radius:3px;background:rgba(255,255,255,.14)}
+  .dots i{width:18px;height:7px;border-radius:4px;background:rgba(255,255,255,.18)}
   .dots i.on{background:var(--c)}
-  .dots i.half{background:linear-gradient(90deg,var(--c) 50%,rgba(255,255,255,.14) 50%)}
-  .sp .why{font-size:12.5px;color:var(--dim);line-height:1.45}
+  .dots i.half{background:linear-gradient(90deg,var(--c) 50%,rgba(255,255,255,.18) 50%)}
+  .sp .why{font-size:15px;color:var(--muted);line-height:1.35}
 
   /* right column */
-  .side{display:grid;grid-template-rows:auto auto;gap:14px;min-height:0;align-content:start}
-  .tide{padding:18px 20px 12px}
-  .tide h3{font-size:13px;letter-spacing:3px;color:var(--dim);font-weight:500;text-transform:uppercase;display:flex;justify-content:space-between}
-  .tide .state{font-size:26px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:10px}
-  .tide .next{font-size:15px;color:var(--muted);margin-top:2px}
-  .bombeo{display:none;margin-top:10px;padding:9px 12px;border-radius:12px;background:rgba(62,227,154,.10);border:1px solid rgba(62,227,154,.3);color:#c9f7e2;font-size:14px;align-items:center;gap:8px}
+  .side{display:grid;grid-template-rows:1fr auto;gap:14px;min-height:0}
+  .tide{padding:16px 20px 12px;display:flex;flex-direction:column;min-height:0}
+  #tideChart{flex:1;min-height:0;display:flex;align-items:center}
+  .tide h3{font-size:16px;letter-spacing:2.5px;color:var(--muted);font-weight:600;text-transform:uppercase;display:flex;justify-content:space-between}
+  .tide .state{font-size:30px;font-weight:700;margin-top:6px;display:flex;align-items:center;gap:10px}
+  .tide .next{font-size:18px;color:var(--muted);margin-top:2px}
+  .bombeo{display:none;margin-top:10px;padding:9px 12px;border-radius:12px;background:rgba(62,227,154,.10);border:1px solid rgba(62,227,154,.3);color:#d6fbe9;font-size:17px;align-items:center;gap:8px}
   .bombeo svg{width:18px;height:18px}
   .wx{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  .tile{padding:14px 12px;text-align:center}
-  .tile svg{width:34px;height:34px;display:block;margin:0 auto 6px}
-  .tile b{font-size:28px;font-weight:600;display:block;line-height:1.1}
-  .tile span{font-size:12.5px;color:var(--dim);display:block;margin-top:3px;line-height:1.35}
+  .tile{padding:12px 10px;text-align:center}
+  .tile svg{width:36px;height:36px;display:block;margin:0 auto 4px}
+  .tile b{font-size:36px;font-weight:700;display:block;line-height:1.1}
+  .tile span{font-size:15px;color:var(--muted);display:block;margin-top:3px;line-height:1.3}
 
   /* days */
   .foot{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:14px;align-items:stretch}
@@ -118,16 +122,20 @@
   .fs svg{width:20px;height:20px}
   .fs.hide{display:none}
   .right{display:flex;align-items:center}
-  .day{padding:14px 16px 12px;display:flex;flex-direction:column;gap:4px}
-  .day .top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted);text-transform:capitalize}
-  .day .top svg{width:22px;height:22px}
-  .day .who{font-size:22px;font-weight:700}
-  .day .meta{font-size:13px;color:var(--dim)}
-  .day svg.spark{width:100%;height:38px;margin-top:4px}
+  .day{padding:12px 16px 10px;display:flex;flex-direction:column;gap:3px;cursor:pointer;transition:border-color .2s,background .2s;-webkit-tap-highlight-color:transparent}
+  .day:active{transform:scale(.985)}
+  .day.sel{border:2px solid rgba(255,255,255,.75);background:rgba(28,36,48,.92)}
+  .day .top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:17px;font-weight:600;color:var(--text);text-transform:capitalize}
+  .day .top .wxd{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:500;color:var(--muted);text-transform:none}
+  .day .top svg{width:28px;height:28px}
+  .day .who{font-size:25px;font-weight:700;line-height:1.15}
+  .day .meta{font-size:15px;color:var(--muted)}
+  .day .rainnote{font-size:14px;color:#9fd6ff}
+  .day svg.spark{width:100%;height:34px;margin-top:2px}
   .rate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:0 22px;border-radius:24px;border:0;cursor:pointer;
         background:linear-gradient(135deg,#2fe0c8,#3aa0ff);color:#04202a;font-family:inherit;font-weight:700;font-size:16px;box-shadow:0 10px 30px rgba(47,224,200,.25)}
   .rate svg{width:30px;height:30px}
-  .rate small{font-weight:500;font-size:11.5px;opacity:.75;max-width:120px;text-align:center}
+  .rate small{font-weight:600;font-size:13px;opacity:.8;max-width:120px;text-align:center}
 
   .err{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:30;padding:8px 14px;border-radius:12px;background:rgba(80,20,30,.85);color:#ffd2d7;font-size:14px}
 
@@ -169,7 +177,7 @@
     <div class="glass hero fadein" id="hero">
       <div class="hero-top">
         <div>
-          <div class="eyebrow"><span class="live"></span><span id="eyebrow">Ahora</span></div>
+          <div class="eyebrow"><span class="live" id="live"></span><span id="eyebrow">Ahora</span><button class="back" id="backNow">✕ Ahora</button></div>
           <div class="spotname" id="spotname">—</div>
           <div class="height" id="height"></div>
         </div>
@@ -193,9 +201,9 @@
   </section>
 
   <footer class="foot">
-    <div class="glass day fadein" id="d0" style="animation-delay:.12s"></div>
-    <div class="glass day fadein" id="d1" style="animation-delay:.16s"></div>
-    <div class="glass day fadein" id="d2" style="animation-delay:.2s"></div>
+    <div class="glass day fadein" role="button" tabindex="0" id="d0" style="animation-delay:.12s"></div>
+    <div class="glass day fadein" role="button" tabindex="0" id="d1" style="animation-delay:.16s"></div>
+    <div class="glass day fadein" role="button" tabindex="0" id="d2" style="animation-delay:.2s"></div>
     <button class="rate" id="rateBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Calificar<small id="rateMeta"></small></button>
   </footer>
 </div>
@@ -282,6 +290,8 @@ function wxIcon(code, day=1){
   if(code<=77) return I.cloud;
   return I.storm;
 }
+const wxCat = c => c===0?0:c<=2?1:c===3?2:c<=48?3:(c<=67||(c>=80&&c<=82))?5:c<=77?2:6;   // 0 sol · 1 parcial · 2 nublado · 3 niebla · 5 lluvia · 6 tormenta
+const CAT_CODE = [0,2,3,45,,61,95];
 const wxText = c => c===0?"Despejado":c<=2?"Algo nublado":c===3?"Nublado":c<=48?"Niebla":c<=57?"Llovizna":c<=67?"Lluvia":c<=77?"Nieve":c<=82?"Chaparrones":"Tormenta";
 
 /* ===================== FÍSICA (igual que v1) ===================== */
@@ -431,7 +441,7 @@ function dialSVG(spot, r, h){
 
 function tideSVG(now){
   const d0=new Date(now); d0.setHours(0,0,0,0); const t0=d0.getTime(), t1=t0+86400000;
-  const W=520,Hh=130,pl=8,pr=8,pt=22,pb=20;
+  const W=520,Hh=185,pl=8,pr=8,pt=26,pb=24;
   const ys=[]; for(let ms=t0;ms<=t1;ms+=1800000) ys.push(etaAt(ms));
   const ymin=Math.min(...ys)-0.08, ymax=Math.max(...ys)+0.08;
   const X=ms=>pl+(ms-t0)/(t1-t0)*(W-pl-pr), Y=y=>pt+(1-(y-ymin)/(ymax-ymin))*(Hh-pt-pb);
@@ -445,13 +455,13 @@ function tideSVG(now){
     if(b>a) s+=`<rect x="${a}" y="${pt-8}" width="${b-a}" height="${Hh-pt-pb+8}" rx="8" fill="#3ee39a" opacity=".09"/>`; }
   s+=`<path d="${area}" fill="url(#tg)"/><path d="${line}" fill="none" stroke="url(#tl)" stroke-width="3" stroke-linecap="round"/>`;
   for(const e of TIDE.ext){ if(e.ms<t0||e.ms>t1) continue;
-    s+=`<circle cx="${X(e.ms)}" cy="${Y(e.y)}" r="3.5" fill="#0b1828" stroke="#cfe3ff" stroke-width="1.5"/>
-        <text x="${X(e.ms)}" y="${e.type==="alta"?Y(e.y)-9:Y(e.y)+17}" fill="rgba(233,243,250,.75)" font-size="12" text-anchor="middle" font-family="Outfit,system-ui,sans-serif">${fmtT(e.ms)}</text>`; }
+    s+=`<circle cx="${X(e.ms)}" cy="${Y(e.y)}" r="4.5" fill="#0b1828" stroke="#cfe3ff" stroke-width="1.5"/>
+        <text x="${X(e.ms)}" y="${e.type==="alta"?Y(e.y)-11:Y(e.y)+21}" fill="rgba(240,245,249,.92)" font-size="15" font-weight="600" text-anchor="middle" font-family="Outfit,system-ui,sans-serif">${fmtT(e.ms)}</text>`; }
   const ny=Y(etaAt(now));
   s+=`<line x1="${X(now)}" x2="${X(now)}" y1="${pt-8}" y2="${Hh-pb}" stroke="rgba(255,209,102,.5)" stroke-dasharray="3 4"/>
       <circle cx="${X(now)}" cy="${ny}" r="10" fill="#ffd166" opacity=".25"><animate attributeName="r" values="6;13;6" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".35;0;.35" dur="2.4s" repeatCount="indefinite"/></circle>
       <circle cx="${X(now)}" cy="${ny}" r="5" fill="#ffd166"/>`;
-  [0,6,12,18,24].forEach(hh=>s+=`<text x="${X(t0+hh*3600000)}" y="${Hh-3}" fill="rgba(233,243,250,.35)" font-size="11" text-anchor="${hh===0?"start":hh===24?"end":"middle"}" font-family="Outfit,system-ui,sans-serif">${hh}h</text>`);
+  [0,6,12,18,24].forEach(hh=>s+=`<text x="${X(t0+hh*3600000)}" y="${Hh-3}" fill="rgba(240,245,249,.6)" font-size="13" text-anchor="${hh===0?"start":hh===24?"end":"middle"}" font-family="Outfit,system-ui,sans-serif">${hh}h</text>`);
   return s+"</svg>";
 }
 
@@ -473,60 +483,96 @@ const rangeTxt = hb => hb<0.15?`<b>plano</b>`:`<b>${Math.max(0,hb*0.8).toFixed(1
 const currentHourIdx = () => { const now=Date.now(); let b=0; D.H.forEach((h,i)=>{ if(h.ms<=now) b=i; }); return b; };
 const dayLight = ds => { const i=D.daily.time.indexOf(ds); return i<0?null:{rise:parseLocal(D.daily.sunrise[i]), set:parseLocal(D.daily.sunset[i]), i}; };
 let SCENE = {hb:0.5, Tp:8, eta:0, ws:10, wd:270, rise:0, set:0};
+// día elegido tocando las tarjetas de abajo (null = "ahora"). Vuelve solo a "ahora" a los 90 s: es una pantalla fija.
+let SEL=null, selT=null;
+function pickDay(date){ SEL=date; clearTimeout(selT); if(SEL) selT=setTimeout(()=>pickDay(null),90000); if(D) render(); }
+function dayLabel(date, today){
+  const tomorrow=D.daily.time[D.daily.time.indexOf(today)+1];
+  if(date===today) return "Hoy"; if(date===tomorrow) return "Mañana";
+  const L=dayLight(date); return new Date(L?L.rise:parseLocal(date+"T12:00")).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"});
+}
+function bestHourOf(date, fromMs=0){
+  const L=dayLight(date); if(!L) return null;
+  const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set&&x.ms>=fromMs);
+  let bb=null; for(const x of hrs) for(const sp of SPOTS){ const e=evalHour(x,sp); if(!bb||e.score>bb.e.score) bb={e,x}; }
+  return bb;
+}
+// clima de un día: el que predomina con luz de día (no el peor momento, como da Open-Meteo en "daily") + primera hora de lluvia
+function dayWx(date, fromMs){
+  const L=dayLight(date); const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=(L?L.rise:0)&&x.ms<=(L?L.set:Infinity)&&x.ms>=fromMs-3600000&&x.code!=null);
+  if(!hrs.length) return null;
+  const cnt=[0,0,0,0,0,0,0]; hrs.forEach(x=>cnt[wxCat(x.code)]++);
+  const wet=cnt[5]+cnt[6]; let cat;
+  if(wet>=Math.max(3,hrs.length*0.4)) cat=cnt[6]>cnt[5]?6:5;
+  else { cat=0; for(const c of [0,1,2,3]) if(cnt[c]>cnt[cat]) cat=c; }
+  const firstRain=hrs.find(x=>wxCat(x.code)>=5);
+  return {cat, code:CAT_CODE[cat], firstRain};
+}
 
 function render(){
   buildTide();
   const now=Date.now(), hNow=D.H[currentHourIdx()], today=hNow.t.slice(0,10), dl=dayLight(today);
   const night = dl && (now<dl.rise-1800000 || now>dl.set);
   // de noche, la tarjeta principal muestra la mejor hora de la próxima mañana/día
-  let h=hNow, heroLbl="Ahora", dayWord="Hoy";
-  if(night){
+  let h=hNow, heroLbl="Ahora", dayWord="Hoy", focusDate=today, isNow=true;
+  if(SEL && (SEL===today || !dayLight(SEL))) SEL=null;
+  if(SEL){ const bb=bestHourOf(SEL);
+    if(bb){ h=bb.x; isNow=false; focusDate=SEL; dayWord=dayLabel(SEL,today); heroLbl=dayWord+" · "+fmtT(bb.x.ms); } else SEL=null; }
+  else if(night){
     const tgtDate = now>dl.set ? D.daily.time[dl.i+1] : today, L2 = tgtDate?dayLight(tgtDate):null;
     if(L2){ const hrs=D.H.filter(x=>x.t.startsWith(tgtDate)&&x.ms>=L2.rise-1800000&&x.ms<=L2.set);
       let bb=null; for(const x of hrs) for(const s of SPOTS){ const e=evalHour(x,s); if(!bb||e.score>bb.e.score) bb={e,x}; }
-      if(bb){ h=bb.x; dayWord=tgtDate===today?"Hoy":"Mañana"; heroLbl=dayWord+" · mejor a las "+fmtT(bb.x.ms); } }
+      if(bb){ h=bb.x; isNow=false; focusDate=tgtDate; dayWord=tgtDate===today?"Hoy":"Mañana"; heroLbl=dayWord+" · mejor a las "+fmtT(bb.x.ms); } }
   }
   const R={}; SPOTS.forEach(s=>R[s]=evalHour(h,s));
   const best=R.Biologia.score>=R.Yacht.score?"Biologia":"Yacht", r=R[best];
   const none = Math.max(R.Biologia.score,R.Yacht.score)<0.1;
 
-  document.documentElement.style.setProperty("--c1", none?"#8aa3b8":COLOR[best][0]);
-  document.documentElement.style.setProperty("--c2", none?"#c7d6e2":COLOR[best][1]);
+  document.documentElement.style.setProperty("--c1", none?"#c3d0da":COLOR[best][0]);
+  document.documentElement.style.setProperty("--c2", none?"#eef3f7":COLOR[best][1]);
   $("eyebrow").textContent = heroLbl;
+  $("live").classList.toggle("off", !isNow);
+  $("backNow").classList.toggle("show", !!SEL);
   // próxima ventana buena (≥ 2.5 estrellas) con luz de día
   let nw=null;
   for(const x of D.H){ if(x.ms<now) continue; const L3=dayLight(x.t.slice(0,10)); if(!L3||x.ms<L3.rise||x.ms>L3.set) continue;
     const es=SPOTS.map(s=>evalHour(x,s)).sort((a,b)=>b.score-a.score); if(es[0].score>=0.5){ nw={x,e:es[0]}; break; } }
-  $("nextwin").innerHTML = nw
+  // con un día elegido: la franja buena de ese día en vez de "próxima buena"
+  if(SEL){ const L4=dayLight(SEL), bs=R[best], hrs=D.H.filter(x=>x.t.startsWith(SEL)&&x.ms>=L4.rise-1800000&&x.ms<=L4.set);
+    const win=hrs.filter(x=>evalHour(x,best).score>=bs.score-0.1);
+    nw=null; $("nextwin").innerHTML = none ? `<span class="tag">Ese día</span><span>Sin ola con luz de día</span>`
+      : `<span class="tag">Franja buena</span><span><b>${fmtT(win[0].ms)}–${fmtT(win[win.length-1].ms+3600000)}</b> · <span style="color:${COLOR[best][0]}">${NAME[best]}</span> · ${bs.stars} ★</span>`; }
+  else $("nextwin").innerHTML = nw
     ? `<span class="tag">Próxima buena</span><span><b>${new Date(nw.x.ms).toLocaleDateString("es-AR",{weekday:"long"})} ${fmtT(nw.x.ms)}</b> · <span style="color:${COLOR[nw.e.spot][0]}">${NAME[nw.e.spot]}</span> ${(nw.e.hb*0.8).toFixed(1)}–${(nw.e.hb*1.2).toFixed(1)} m · ${nw.e.stars} ★</span>`
     : `<span class="tag">Próxima buena</span><span>No aparece en los próximos días</span>`;
-  $("spotname").textContent = none?dayWord+" no":NAME[best];
+  $("spotname").textContent = none?(/^(Hoy|Mañana)$/.test(dayWord)?dayWord+" no":"Sin ola"):NAME[best];
   $("height").innerHTML = none?`<small style="margin:0">máx</small> ${rangeTxt(Math.max(R.Biologia.hb,R.Yacht.hb))}`:rangeTxt(r.hb);
-  $("gauge").innerHTML = gaugeSVG(r.stars, none?"#8aa3b8":COLOR[best][0], none?"#c7d6e2":COLOR[best][1]);
+  $("gauge").style.display = none?"none":"";
+  $("gauge").innerHTML = gaugeSVG(r.stars, none?"#8aa3b8":COLOR[best][0], none?"#eef3f7":COLOR[best][1]);
   $("chips").innerHTML = chipsFor(r,h).map(c=>`<div class="chip ${c.tone}">${c.i}<span>${c.t}</span></div>`).join("");
   $("spots").innerHTML = SPOTS.map(s=>{ const x=R[s];
-    const why = x.detail.slice().sort((a,b)=>b.hb-a.hb).slice(0,2).map(p=>`${compass(p.d)} ${p.p.toFixed(0)}s → ${Math.round(p.e*100)}%`).join(" · ");
+    const why = x.detail.slice().sort((a,b)=>b.hb-a.hb).slice(0,1).map(p=>`${compass(p.d)} ${p.p.toFixed(0)}s → ${Math.round(p.e*100)}%`).join(" · ");
     return `<div class="sp ${s===best&&!none?"win":""}" style="--c:${COLOR[s][0]}">${dialSVG(s,x,h)}
       <div><div class="nm">${NAME[s].toUpperCase()}</div><div class="hv">${x.hb<0.15?"plano":`${(x.hb*0.8).toFixed(1)}–${(x.hb*1.2).toFixed(1)}<small> m</small>`}</div>
       <div class="dots">${dots(x.stars)}</div><div class="why">${why}<br>${x.tq.txt}</div></div></div>`; }).join("");
 
   // marea
-  const ti=tideInfo(now);
-  $("tideState").innerHTML = `<span style="color:${ti.rising?"#2fe0c8":"#7ac7ff"}">${ti.rising?"↗":"↘"}</span> ${ti.rising?"Subiendo":"Bajando"} · ${ti.lvl}`;
+  const tMs=isNow?now:h.ms, ti=tideInfo(tMs);
+  $("tideState").innerHTML = (isNow?"":`<span style="font-weight:500;color:var(--muted)">${fmtT(tMs)}</span> `)+`<span style="color:${ti.rising?"#2fe0c8":"#7ac7ff"}">${ti.rising?"↗":"↘"}</span> ${ti.rising?"Subiendo":"Bajando"} · ${ti.lvl}`;
   $("tideNext").textContent = ti.nextE.map(e=>`${e.type==="alta"?"Pleamar":"Bajamar"} ${fmtT(e.ms)}`).join("   ·   ");
-  $("tideChart").innerHTML = tideSVG(now);
-  const nx=TIDE.ext.find(e=>e.ms>now-CFG.BOMBEO_MIN*60000), Tp=Math.max(...SPOTS.map(s=>R[s].dom?R[s].dom.p:0));
-  if(nx && nx.ms-now<3*3600000){ $("bombeo").style.display="flex";
+  $("tideChart").innerHTML = tideSVG(tMs);
+  const nx=TIDE.ext.find(e=>e.ms>tMs-CFG.BOMBEO_MIN*60000), Tp=Math.max(...SPOTS.map(s=>R[s].dom?R[s].dom.p:0));
+  if(nx && nx.ms-tMs<3*3600000){ $("bombeo").style.display="flex";
     $("bombeo").innerHTML = `${I.pump}<span>Cambio de marea ${fmtT(nx.ms)} · bombeo ${fmtT(nx.ms-CFG.BOMBEO_MIN*60000)}–${fmtT(nx.ms+CFG.BOMBEO_MIN*60000)}${Tp>=9?" · período largo ✓":""}</span>`;
   } else $("bombeo").style.display="none";
 
   // clima
-  const di=dl?dl.i:0; let rise=dl?dl.rise:null, set=dl?dl.set:null, tmr=false;
-  if(dl && now>dl.set && D.daily.sunrise[di+1]){ rise=parseLocal(D.daily.sunrise[di+1]); set=parseLocal(D.daily.sunset[di+1]); tmr=true; }
+  const dF=dayLight(focusDate)||dl, di=dF?dF.i:0; let rise=dF?dF.rise:null, set=dF?dF.set:null, tmr=false;
+  if(isNow && dl && now>dl.set && D.daily.sunrise[di+1]){ rise=parseLocal(D.daily.sunrise[di+1]); set=parseLocal(D.daily.sunset[di+1]); tmr=true; }
   const tc=D.daily.weather_code[di+1];
   $("wx").innerHTML = `
     <div class="glass tile fadein" style="animation-delay:.1s">${I.drop.replace('currentColor','#7ac7ff')}<b>${h.sst!=null?h.sst.toFixed(0):"–"}°</b><span>agua</span></div>
-    <div class="glass tile fadein" style="animation-delay:.14s">${wxIcon(h.code,!night)}<b>${Math.round(h.temp)}°</b><span>${wxText(h.code)} · sens ${Math.round(h.app)}°</span></div>
+    <div class="glass tile fadein" style="animation-delay:.14s">${wxIcon(h.code,isNow?!night:1)}<b>${Math.round(h.temp)}°</b><span>${wxText(h.code)}<br>${isNow?"sensación":fmtT(h.ms)+" · sens."} ${Math.round(h.app)}°</span></div>
     <div class="glass tile fadein" style="animation-delay:.18s">${I.sunrise}<b>${rise?fmtT(rise):"–"}</b><span>amanece${tmr?" mañana":""}<br>atardece ${set?fmtT(set):"–"}</span></div>`;
 
   // días
@@ -539,15 +585,25 @@ function render(){
     const win=fut.filter(x=>evalHour(x,top.r.spot).score>=top.r.score-0.1);
     const tomorrow = D.daily.time[D.daily.time.indexOf(today)+1];
     const lbl = date===today?"Hoy":date===tomorrow?"Mañana":new Date(L.rise).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"});
-    const icon = wxIcon(D.daily.weather_code[k],1);
-    $("d"+slot).innerHTML = `<div class="top"><span>${lbl}</span>${icon}</div>
+    // hoy: el clima de AHORA (+ aviso si llueve más tarde); otros días: el que predomina con luz
+    const wd=dayWx(date, date===today?now:0), hN=D.H[currentHourIdx()];
+    const code = date===today ? hN.code : (wd?wd.code:D.daily.weather_code[k]);
+    const icon = wxIcon(code, date===today?!night:1);
+    const tmax=D.daily.temperature_2m_max[k], tmin=D.daily.temperature_2m_min[k];
+    const rainAt = wd&&wd.firstRain&&!(date===today&&wxCat(hN.code)>=5) ? wd.firstRain.ms : null;
+    const card=$("d"+slot), isSel=(SEL?SEL===date:(date===today&&isNow));
+    card.classList.toggle("sel", isSel && !!SEL); card.setAttribute("aria-pressed", isSel);
+    card.onclick = () => pickDay(date===today?null:date);
+    card.onkeydown = e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); card.onclick(); } };
+    card.innerHTML = `<div class="top"><span>${lbl}</span><span class="wxd">${icon}${Math.round(tmax)}°<span style="color:var(--dim)">/${Math.round(tmin)}°</span></span></div>
       ${top.r.score<0.1?`<div class="who" style="color:var(--dim)">Sin ola</div><div class="meta">máx ${(top.r.hb*1.2).toFixed(1)} m · viento ${compass(top.h.wd)} ${Math.round(top.h.ws)}</div>`
       :`<div class="who" style="color:${COLOR[top.r.spot][0]}">${NAME[top.r.spot]} <span style="font-weight:400;color:var(--muted);font-size:17px">${(top.r.hb*0.8).toFixed(1)}–${(top.r.hb*1.2).toFixed(1)} m</span></div>
         <div class="meta"><span class="dots" style="display:inline-flex;vertical-align:middle;--c:${COLOR[top.r.spot][0]}">${dots(top.r.stars)}</span> &nbsp;${fmtT(win[0].ms)}–${fmtT(win[win.length-1].ms+3600000)} · ${compass(top.h.wd)} ${Math.round(top.h.ws)} km/h</div>`}
-      ${sparkSVG(hrs)}`;
+      ${rainAt?`<div class="rainnote">☂ lluvia desde las ${fmtT(rainAt)}</div>`:""}
+      ${rainAt?"":sparkSVG(hrs)}`;
     slot++;
   }
-  for(;slot<3;slot++) $("d"+slot).innerHTML="";
+  for(;slot<3;slot++){ $("d"+slot).innerHTML=""; $("d"+slot).onclick=null; }
 
   $("tideUpd").textContent = "act. "+fmtT(D.fetched);
   renderRateMeta();
@@ -558,7 +614,7 @@ function render(){
 
 /* ===================== CIELO + MAR ANIMADO ===================== */
 const SKY = { // [arriba, abajo]
-  night:["#040a16","#0b1b30"], dawn:["#1a2350","#e27d5f"], day:["#0c3a63","#2b86b8"], dusk:["#1b1b45","#d1645a"]
+  night:["#040a16","#0b1b30"], dawn:["#1a2350","#e27d5f"], day:["#12283b","#35607c"], dusk:["#1b1b45","#d1645a"]
 };
 function skyAt(now){
   const {rise,set}=SCENE; if(!rise) return SKY.night;
@@ -659,6 +715,7 @@ function goFull(){
 // sin API de pantalla completa (iPhone) el botón no sirve: se esconde
 function syncFs(){ $("fsBtn").classList.toggle("hide", isFull() || !document.documentElement.requestFullscreen); setTimeout(fit,200); }
 addEventListener("resize",()=>$("fsBtn").classList.toggle("hide", isFull() || !document.documentElement.requestFullscreen));
+$("backNow").onclick=e=>{ e.stopPropagation(); pickDay(null); };
 $("fsBtn").onclick=e=>{ e.stopPropagation(); goFull(); };
 document.addEventListener("fullscreenchange",syncFs); syncFs();
 // en tablet/celular: el primer toque en cualquier lado pasa a pantalla completa
