@@ -1,0 +1,41 @@
+  Estimated power use (mAh):
+    Capacity: 2800, Computed drain: 526, actual drain: 812-868
+    Screen: 416 Excluded from smearing
+    Unaccounted: 286 ( ) Including smearing: 0 ( ) Excluded from smearing
+    Uid u0a79: 64.6 ( cpu=64.5 wake=0.0657 ) Including smearing: 354 ( screen=280 proportional=8.87 )
+    Uid 1000: 10.9 ( cpu=10.2 wake=0.243 wifi=0.0802 sensor=0.312 ) Excluded from smearing
+    Idle: 9.44 Excluded from smearing
+    Uid 0: 6.85 ( cpu=6.85 ) Excluded from smearing
+    Uid u0a74: 5.39 ( cpu=5.27 wake=0.0732 wifi=0.0474 ) Including smearing: 27.8 ( screen=21.7 proportional=0.698 )
+    Uid u0a71: 5.10 ( cpu=5.10 wake=0.00126 ) Including smearing: 94.4 ( screen=86.9 proportional=2.37 )
+    Uid 2000: 1.45 ( cpu=1.45 wake=0.00000708 ) Excluded from smearing
+    Uid u0a40079: 1.27 ( cpu=1.27 ) Including smearing: 1.30 ( proportional=0.0327 )
+    Uid u0a40071: 0.898 ( cpu=0.898 ) Including smearing: 0.921 ( proportional=0.0231 )
+    Uid u0a98: 0.663 ( cpu=0.660 wake=0.00314 ) Excluded from smearing
+    Uid u0a75: 0.338 ( cpu=0.328 wake=0.00955 ) Including smearing: 0.347 ( proportional=0.00870 )
+    Uid u0a86: 0.218 ( cpu=0.216 wake=0.00171 ) Including smearing: 0.224 ( proportional=0.00561 )
+    Uid u0a78: 0.169 ( cpu=0.169 wake=0.000125 ) Including smearing: 0.173 ( proportional=0.00435 )
+    Uid u0a76: 0.162 ( cpu=0.161 wake=0.000416 ) Including smearing: 0.189 ( screen=0.0227 proportional=0.00475 )
+    Wifi: 0.140 ( cpu=0.0694 wifi=0.0706 ) Including smearing: 0.144 ( proportional=0.00360 )
+    Uid u0a40117: 0.131 ( cpu=0.131 ) Including smearing: 0.134 ( proportional=0.00337 )
+    Uid u0a73: 0.127 ( cpu=0.126 wake=0.000255 ) Including smearing: 0.130 ( proportional=0.00326 )
+    Uid 1036: 0.122 ( cpu=0.122 ) Excluded from smearing
+    Uid u0a93: 0.106 ( cpu=0.106 wake=0.0000803 ) Including smearing: 0.109 ( proportional=0.00274 )
+    Uid u0a83: 0.104 ( cpu=0.104 wake=0.000354 ) Including smearing: 0.107 ( proportional=0.00268 )
+    Uid u0a117: 0.0973 ( cpu=0.0816 wake=0.0156 ) Including smearing: 0.173 ( screen=0.0711 proportional=0.00433 )
+    Uid 1001: 0.0852 ( cpu=0.0849 wake=0.000227 ) Excluded from smearing
+    Uid u0a66: 0.0794 ( cpu=0.0794 wake=0.0000165 ) Including smearing: 0.0814 ( proportional=0.00204 )
+    Uid u0a21: 0.0704 ( cpu=0.0704 wake=0.0000283 ) Including smearing: 0.0722 ( proportional=0.00181 )
+    Uid 1066: 0.0686 ( cpu=0.0686 ) Excluded from smearing
+    Uid u0a89: 0.0632 ( cpu=0.0630 wake=0.000179 ) Including smearing: 0.0648 ( proportional=0.00163 )
+    Uid u0a100: 0.0626 ( cpu=0.0626 wake=0.0000283 ) Including smearing: 27.9 ( screen=27.1 proportional=0.700 )
+    Uid u0a95: 0.0523 ( cpu=0.0523 wake=0.0000189 ) Including smearing: 0.0536 ( proportional=0.00135 )
+    Uid u0a111: 0.0493 ( cpu=0.0493 wake=0.0000425 ) Including smearing: 0.0506 ( proportional=0.00127 )
+    Uid u0a40094: 0.0480 ( cpu=0.0480 ) Including smearing: 0.0493 ( proportional=0.00124 )
+    Uid u0a85: 0.0471 ( cpu=0.0471 wake=0.0000354 ) Including smearing: 0.0483 ( proportional=0.00121 )
+    Uid 1046: 0.0400 ( cpu=0.0400 ) Excluded from smearing
+    Uid 1069: 0.0344 ( cpu=0.0344 ) Excluded from smearing
+    Uid 1041: 0.0318 ( cpu=0.0286 wake=0.00327 ) Excluded from smearing
+    Uid u0a65: 0.0312 ( cpu=0.0311 wake=0.0000567 ) Including smearing: 0.329 ( screen=0.289 proportional=0.00825 )
+    Uid 1003: 0.0303 ( cpu=0.0303 ) Excluded from smearing
+    Uid u0a70: 0.0228 ( cpu=0.0228 wake=0.0000213 ) Including smearing: 0.0234 ( proportional=0.000587 )

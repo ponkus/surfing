@@ -2,6 +2,14 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — tablet preparada por ADB
+- Diagnóstico: MT-1025QU, Android 11, chip Allwinner (`sun50iw10p1`), 4 GB RAM, batería "buena" según Android. Lo que más consume: pantalla y Chrome. Archivos en `docs/tablet/`.
+- ADB por USB inestable (desconexiones y `offline` con 2 cables/puertos) → se usó depuración inalámbrica. Documentado en `TABLET.md`.
+- Con OK de Maiky: desactivadas 14 apps de Google (YouTube, YT Music, Google TV, Gmail, Calendar, Contactos, Meet, Maps, Drive, Fotos Go, Google Go, Asistente Go, Bienestar digital, Feedback); Opera Mini desinstalada para el usuario 0. No se tocaron apps de Allwinner/Softwinner ni del fabricante (`com.yhk.*`, `com.DeviceTest`).
+- Ajustes: animaciones 0,5×, pantalla siempre prendida enchufada (ya estaba), apagado a batería 1 min → 30 min, brillo 100 % → 50 % (no tiene sensor de luz). Play Store: actualizar solo por Wi-Fi (Maiky).
+- `docs/tablet/revertir.sh` deshace todo.
+- Regla nueva (pedido de Maiky): el merge a `main` lo hace Claude, con tests en OK (`CLAUDE.md`, `DECISIONES.md`).
+
 ## 2026-09-27 · Claude app — plan de preparación de la tablet
 - `docs/TABLET.md`: instrucciones para que Claude Code prepare la tablet por ADB desde la Mac (diagnóstico, limpieza reversible, ajustes), con lista de paquetes que no se tocan.
 - Chrome en la tablet no ofrece "Agregar a pantalla principal" (ni en ⋮ ni en Compartir): se usará Fully Kiosk Browser.

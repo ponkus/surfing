@@ -25,7 +25,7 @@ Tiene dos cosas independientes:
    - actualizar `parte/docs/ESTADO.md`;
    - si se tomó una decisión de diseño o de modelo, agregarla a `parte/docs/DECISIONES.md`;
    - si cambió la física o un parámetro del modelo, actualizar `parte/docs/MODELO.md`.
-3. Commits chicos con mensaje en español que diga qué y por qué. Trabajar en una rama y abrir PR: **el merge a `main` lo hace Maiky** (publica en Pages).
+3. Commits chicos con mensaje en español que diga qué y por qué. Trabajar en una rama y abrir PR. **El merge a `main` lo hace Claude** (pedido de Maiky, 27/09/2026: no quiere entrar a la web a apretar el botón), solo si `python3 parte/tests/run.py` da OK (cuando se tocó la app) y avisándole a Maiky qué se publicó. El merge publica en Pages, así que si el cambio es grande o dudoso, preguntarle antes.
 
 Si no se actualizan estos archivos, la próxima instancia de Claude trabaja a ciegas.
 

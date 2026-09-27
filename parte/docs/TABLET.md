@@ -22,6 +22,15 @@ adb version
 3. Conectar la tablet a la Mac con un cable **de datos** (no solo carga). En la tablet aceptar "¿Permitir depuración USB?" → marcar "Permitir siempre".
 4. En la Mac: `adb devices` debe listar el equipo como `device` (si dice `unauthorized`, falta aceptar el aviso en la tablet).
 
+**Si el USB se corta o queda `offline`** (pasó el 27/09 con 2 cables y 2 puertos): usar **depuración inalámbrica** (misma red Wi-Fi).
+Opciones de desarrollador → Depuración inalámbrica → activar → "Vincular dispositivo con código de vinculación". En la Mac:
+```bash
+adb pair <IP:puerto del cartel> <código>
+adb mdns services                  # muestra el puerto de conexión (_adb-tls-connect)
+adb connect <IP:puerto de conexión>
+```
+El puerto cambia cada vez que se reactiva la depuración inalámbrica.
+
 ## 2. Diagnóstico ANTES de tocar nada (guardar todo)
 ```bash
 mkdir -p ~/tablet-tjd && cd ~/tablet-tjd
@@ -53,7 +62,8 @@ Candidatos típicos a **deshabilitar** (`adb shell pm disable-user --user 0 <paq
 `com.android.packageinstaller` / `com.google.android.packageinstaller`, `com.android.providers.*`, `com.android.phone`,
 el launcher (`*launcher*`), el teclado (`*inputmethod*`, `com.google.android.inputmethod.latin`), `com.android.shell`,
 `com.android.permissioncontroller` / `com.google.android.permissioncontroller`, `com.android.bluetooth`, `com.android.networkstack*`,
-cualquier cosa con `sprd`/`unisoc`/`mediatek`/`mtk` en el nombre (drivers del chip), `android`.
+cualquier cosa con `sprd`/`unisoc`/`mediatek`/`mtk`/`allwinner`/`softwinner` en el nombre (drivers del chip; **esta tablet es Allwinner**), `android`.
+Tampoco las del fabricante (`com.yhk.*` —incluye el actualizador del sistema—, `com.DeviceTest`).
 Si hay duda sobre un paquete: **no se toca**.
 
 Guardar lo que se hizo:
