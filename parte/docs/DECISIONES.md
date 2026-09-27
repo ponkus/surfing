@@ -2,6 +2,7 @@
 
 Formato: fecha · decisión · por qué · (quién). Lo más nuevo arriba.
 
+- **2026-09-27** · Horario personal por parámetro de URL (`?horario=0630-1200`), no fijo en la app ni guardado en el navegador. · La app la pueden ver otras personas con otros horarios; la URL no se borra si se limpia el navegador. Si más adelante otra gente la usa, sumar un ajuste en pantalla. · (Maiky)
 - **2026-09-27** · Diseño pensado para leerse a 2 m (tarjetas oscuras opacas, tipografía grande) y días tocables que vuelven solos a "ahora" a los 90 s. · La tablet va como portarretratos; el vidrio azul translúcido tenía poco contraste. · (Maiky)
 - **2026-09-27** · Ícono de clima por día = clima predominante con luz de día (hoy: el de ahora + aviso de lluvia), no el `weather_code` diario de Open-Meteo. · El diario es el peor momento del día y marcaba lluvia todo el día por una hora de llovizna. · (Maiky)
 - **2026-09-27** · No instalar Android más nuevo (GSI). · Oficialmente no hay actualización. Un GSI obliga a desbloquear el bootloader (borra todo), los drivers de Allwinner/Android 11 suelen fallar y no hay firmware de fábrica para recuperar: riesgo de dejarla inservible sin mejora para la web, que depende de Chrome/WebView (se actualizan por Play Store). · (Claude Code, Maiky de acuerdo)

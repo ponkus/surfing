@@ -2,6 +2,13 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — horario personal por URL (`?horario=0630-1200`)
+- Maiky casi siempre puede ir de 6:30 a 12, pero la app la pueden ver otros: el horario NO es fijo en la app, va en la URL. Sin parámetro, todo igual que antes (todo el día).
+- Con horario: "En tu horario" (en vez de "Próxima buena"), las tarjetas de los días, "Franja buena" y la mejor hora de mañana (de noche / día elegido) buscan solo dentro del horario, recortando la franja (06:00–08:00 → 06:30–08:00). Aparte, en chiquito, "Fuera de tu horario: …" si afuera hay algo ≥ 2,5 ★ y ≥ 0,5 ★ mejor (en "Próxima", solo si llega antes). El horario se ve sombreado en el gráfico de marea. Si el horario de hoy ya pasó, la tarjeta de Hoy lo dice y muestra lo que queda del día.
+- Las estrellas de cada hora no cambian con el horario: solo cambia qué hora se elige.
+- El cuadro central se compacta solo (`.hero.tight`) si el contenido no entra, en vez de cortarse; sin ola no se muestra la etiqueta de bombeo.
+- Tests OK con y sin `?horario`.
+
 ## 2026-09-27 · Claude Code — "Próxima buena" y la tarjeta del día dicen lo mismo
 - Maiky vio "Próxima buena: martes 07:00 · 2.5 ★" y en la tarjeta del martes 4 ★. No era un dato inventado: eran dos cuentas distintas del modelo ("próxima buena" = la PRIMERA hora que llega a 2,5 ★; la tarjeta = la MEJOR hora del día).
 - Ahora hay una sola cuenta, `bestWindow()`: mejor hora del día con luz + franja continua alrededor (≤ 0,5 ★ de la mejor). La usan "Próxima buena" (primer día con alguna hora ≥ 2,5 ★), la tarjeta del día y "Franja buena". Con los datos del 27/09: las dos dicen martes 11:00–13:00 · Yacht · 4 ★.

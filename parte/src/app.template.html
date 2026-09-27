@@ -85,6 +85,19 @@
 
   .nextwin{display:flex;align-items:center;gap:12px;padding:11px 16px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid var(--stroke);font-size:19px;color:var(--muted)}
   .nextwin b{color:var(--text);font-weight:600}
+  .nextwin{flex-wrap:wrap;row-gap:2px}
+  /* si el contenido del cuadro central no entra (muchas etiquetas + aviso), se compacta en vez de cortarse */
+  .hero.tight{gap:8px;padding-top:16px;padding-bottom:16px}
+  .hero.tight .spotname{font-size:70px}
+  .hero.tight .height{font-size:42px;margin-top:2px}
+  .hero.tight .gauge{width:112px;height:112px}
+  .hero.tight .chip{font-size:16px;padding:6px 12px 6px 9px}
+  .hero.tight .nextwin{padding:8px 14px;font-size:17px}
+  .hero.tight .sp{padding:8px 12px}
+  .hero.tight .sp .dial{width:80px;height:80px}
+  .nextwin .alt{flex-basis:100%;font-size:15px;color:var(--dim)}
+  .nextwin .alt b{color:var(--muted);font-weight:600}
+  .day .altnote{font-size:14px;color:var(--dim)}
   .nextwin .tag{font-size:13px;letter-spacing:2px;color:var(--dim);font-weight:600;text-transform:uppercase;white-space:nowrap}
   .spots{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:auto}
   .sp{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--glass2);border:1px solid var(--stroke);position:relative;overflow:hidden}
@@ -244,6 +257,9 @@ const CFG = {
   SHEETS_URL: ""
 };
 if(location.search.includes("lite")) CFG.LITE = true;
+// Horario personal por URL: ?horario=0630-1200 (la tablet de Maiky). Sin parámetro la app muestra todo el día.
+CFG.HORARIO = (()=>{ const m=/[?&]horario=(\d{1,2}):?(\d{2})-(\d{1,2}):?(\d{2})/.exec(location.search); if(!m) return null;
+  const a=+m[1]*60+ +m[2], b=+m[3]*60+ +m[4]; return b>a?{a,b}:null; })();
 if(CFG.LITE) document.body.classList.add("lite");
 const T = __TABLES__;
 const SPOTS = ["Biologia","Yacht"];
@@ -449,6 +465,8 @@ function tideSVG(now){
   let s=`<svg viewBox="0 0 ${W} ${Hh}" width="100%" style="margin-top:8px;overflow:visible"><defs>
     <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3aa0ff" stop-opacity=".45"/><stop offset="1" stop-color="#3aa0ff" stop-opacity="0"/></linearGradient>
     <linearGradient id="tl" x1="0" x2="1"><stop offset="0" stop-color="#2fe0c8"/><stop offset="1" stop-color="#3aa0ff"/></linearGradient></defs>`;
+  if(CFG.HORARIO){ const a=X(t0+CFG.HORARIO.a*60000), b=X(t0+CFG.HORARIO.b*60000);
+    s+=`<rect x="${a}" y="${pt-14}" width="${b-a}" height="${Hh-pt-pb+14}" rx="6" fill="#fff" opacity=".07"/><text x="${(a+b)/2}" y="${pt-3}" fill="rgba(240,245,249,.55)" font-size="12" text-anchor="middle" font-family="Outfit,system-ui,sans-serif">tu horario</text>`; }
   for(const e of TIDE.ext){ if(e.ms<t0-3600000||e.ms>t1+3600000) continue;
     const a=Math.max(pl,X(e.ms-CFG.BOMBEO_MIN*60000)), b=Math.min(W-pr,X(e.ms+CFG.BOMBEO_MIN*60000));
     if(b>a) s+=`<rect x="${a}" y="${pt-8}" width="${b-a}" height="${Hh-pt-pb+8}" rx="8" fill="#3ee39a" opacity=".09"/>`; }
@@ -492,15 +510,28 @@ function dayLabel(date, today){
 }
 // Mejor hora de un día (con luz, desde fromMs) y la franja CONTINUA alrededor donde ese pico sigue a ≤ 0,5 ★ de la mejor.
 // Una sola cuenta para "Próxima buena", la tarjeta del día y "Franja buena": los tres tienen que decir lo mismo.
-function bestWindow(date, fromMs=0){
+const minOf = ms => { const d=new Date(ms); return d.getHours()*60+d.getMinutes(); };
+// ¿la hora que empieza en ms (dura 60 min) cae, aunque sea en parte, dentro del horario?
+const inHorario = ms => { const H=CFG.HORARIO; if(!H) return true; const m=minOf(ms); return m<H.b && m+60>H.a; };
+function bestWindow(date, fromMs=0, mode="all"){
   const L=dayLight(date); if(!L) return null;
-  const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set&&x.ms>=fromMs-3600000);
+  const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set&&x.ms>=fromMs-3600000
+    && (mode==="all" || (mode==="in")===inHorario(x.ms)));
   if(!hrs.length) return null;
   let top=null, ti=0;
   hrs.forEach((x,i)=>{ for(const sp of SPOTS){ const e=evalHour(x,sp); if(!top||e.score>top.r.score){ top={r:e,h:x}; ti=i; } } });
   const ok=i=>evalHour(hrs[i],top.r.spot).score>=top.r.score-0.1;
   let a=ti, b=ti; while(a>0&&ok(a-1)) a--; while(b<hrs.length-1&&ok(b+1)) b++;
-  return {...top, from:hrs[a].ms, to:hrs[b].ms+3600000, hrs};
+  let from=hrs[a].ms, to=hrs[b].ms+3600000;
+  if(mode==="in"&&CFG.HORARIO){ const d0=new Date(from); d0.setHours(0,0,0,0);        // recortar al horario: 06:00–08:00 → 06:30–08:00
+    from=Math.max(from,d0.getTime()+CFG.HORARIO.a*60000); to=Math.min(to,d0.getTime()+CFG.HORARIO.b*60000); }
+  return {...top, from, to, hrs};
+}
+// Con horario: lo principal es la mejor franja DENTRO del horario, y aparte (chiquito) lo de afuera si es claramente mejor.
+const prefWindow = (date, fromMs=0) => CFG.HORARIO ? bestWindow(date,fromMs,"in") : bestWindow(date,fromMs);
+function altWindow(date, fromMs, base){
+  if(!CFG.HORARIO) return null; const o=bestWindow(date,fromMs,"out");
+  return o && o.r.score>=0.5 && o.r.score>=(base?base.r.score:0)+0.1 ? o : null;
 }
 // clima de un día: el que predomina con luz de día (no el peor momento, como da Open-Meteo en "daily") + primera hora de lluvia
 function dayWx(date, fromMs){
@@ -521,12 +552,11 @@ function render(){
   // de noche, la tarjeta principal muestra la mejor hora de la próxima mañana/día
   let h=hNow, heroLbl="Ahora", dayWord="Hoy", focusDate=today, isNow=true;
   if(SEL && (SEL===today || !dayLight(SEL))) SEL=null;
-  if(SEL){ const bb=bestWindow(SEL);
+  if(SEL){ const bb=prefWindow(SEL);
     if(bb){ h=bb.h; isNow=false; focusDate=SEL; dayWord=dayLabel(SEL,today); heroLbl=dayWord+" · "+fmtT(bb.h.ms); } else SEL=null; }
   else if(night){
     const tgtDate = now>dl.set ? D.daily.time[dl.i+1] : today, L2 = tgtDate?dayLight(tgtDate):null;
-    if(L2){ const hrs=D.H.filter(x=>x.t.startsWith(tgtDate)&&x.ms>=L2.rise-1800000&&x.ms<=L2.set);
-      let bb=null; for(const x of hrs) for(const s of SPOTS){ const e=evalHour(x,s); if(!bb||e.score>bb.e.score) bb={e,x}; }
+    if(L2){ const bw=prefWindow(tgtDate), bb=bw&&{e:bw.r,x:bw.h};
       if(bb){ h=bb.x; isNow=false; focusDate=tgtDate; dayWord=tgtDate===today?"Hoy":"Mañana"; heroLbl=dayWord+" · mejor a las "+fmtT(bb.x.ms); } }
   }
   const R={}; SPOTS.forEach(s=>R[s]=evalHour(h,s));
@@ -540,18 +570,23 @@ function render(){
   $("backNow").classList.toggle("show", !!SEL);
   // próxima buena: el primer día con alguna hora ≥ 2,5 ★, mostrando SU mejor franja (la misma que su tarjeta de abajo)
   const winTxt = w => `<b>${fmtT(w.from)}–${fmtT(w.to)}</b> · <span style="color:${COLOR[w.r.spot][0]}">${NAME[w.r.spot]}</span> ${(w.r.hb*0.8).toFixed(1)}–${(w.r.hb*1.2).toFixed(1)} m · ${w.r.stars} ★`;
-  if(SEL){ const bw=bestWindow(SEL);
-    $("nextwin").innerHTML = none||!bw ? `<span class="tag">Ese día</span><span>Sin ola con luz de día</span>` : `<span class="tag">Franja buena</span><span>${winTxt(bw)}</span>`; }
-  else { let nw=null;
-    for(let k=Math.max(0,D.daily.time.indexOf(today)); k<D.daily.time.length && !nw; k++){ const bw=bestWindow(D.daily.time[k], now); if(bw && bw.r.score>=0.5) nw=bw; }
-    $("nextwin").innerHTML = nw
-      ? `<span class="tag">Próxima buena</span><span>${dayLabel(nw.h.t.slice(0,10),today)} ${winTxt(nw)}</span>`
-      : `<span class="tag">Próxima buena</span><span>No aparece en los próximos días</span>`; }
+  const altTxt = (w,withDay) => `<span class="alt">Fuera de tu horario: <b>${withDay?dayLabel(w.h.t.slice(0,10),today)+" ":""}${fmtT(w.from)}–${fmtT(w.to)}</b> · ${NAME[w.r.spot]} · ${w.r.stars} ★</span>`;
+  const tagNext = CFG.HORARIO ? "En tu horario" : "Próxima buena";
+  if(SEL){ const bw=prefWindow(SEL), alt=altWindow(SEL,0,bw);
+    $("nextwin").innerHTML = (!bw||bw.r.score<0.1 ? `<span class="tag">Ese día</span><span>Sin ola${CFG.HORARIO?" en tu horario":" con luz de día"}</span>` : `<span class="tag">${CFG.HORARIO?"En tu horario":"Franja buena"}</span><span>${winTxt(bw)}</span>`)+(alt?altTxt(alt,false):""); }
+  else { let nw=null, alt=null;
+    for(let k=Math.max(0,D.daily.time.indexOf(today)); k<D.daily.time.length && !nw; k++){ const dt=D.daily.time[k], bw=prefWindow(dt, now);
+      if(!alt) alt=altWindow(dt, now, bw);
+      if(bw && bw.r.score>=0.5) nw=bw; }
+    if(alt && nw && alt.from>nw.from) alt=null;          // solo avisar si lo de afuera llega ANTES que lo de adentro
+    $("nextwin").innerHTML = (nw
+      ? `<span class="tag">${tagNext}</span><span>${dayLabel(nw.h.t.slice(0,10),today)} ${winTxt(nw)}</span>`
+      : `<span class="tag">${tagNext}</span><span>No aparece en los próximos días</span>`)+(alt?altTxt(alt,true):""); }
   $("spotname").textContent = none?(/^(Hoy|Mañana)$/.test(dayWord)?dayWord+" no":"Sin ola"):NAME[best];
   $("height").innerHTML = none?`<small style="margin:0">máx</small> ${rangeTxt(Math.max(R.Biologia.hb,R.Yacht.hb))}`:rangeTxt(r.hb);
   $("gauge").style.display = none?"none":"";
   $("gauge").innerHTML = gaugeSVG(r.stars, none?"#8aa3b8":COLOR[best][0], none?"#eef3f7":COLOR[best][1]);
-  $("chips").innerHTML = chipsFor(r,h).map(c=>`<div class="chip ${c.tone}">${c.i}<span>${c.t}</span></div>`).join("");
+  $("chips").innerHTML = chipsFor(r,h).filter(c=>!(none&&c.i===I.pump)).map(c=>`<div class="chip ${c.tone}">${c.i}<span>${c.t}</span></div>`).join("");
   $("spots").innerHTML = SPOTS.map(s=>{ const x=R[s];
     const why = x.detail.slice().sort((a,b)=>b.hb-a.hb).slice(0,1).map(p=>`${compass(p.d)} ${p.p.toFixed(0)}s → ${Math.round(p.e*100)}%`).join(" · ");
     return `<div class="sp ${s===best&&!none?"win":""}" style="--c:${COLOR[s][0]}">${dialSVG(s,x,h)}
@@ -582,7 +617,10 @@ function render(){
   for(let k=k0;k<D.daily.time.length&&slot<3;k++){
     const date=D.daily.time[k], L=dayLight(date);
     const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set);
-    const top=bestWindow(date, now); if(!top) continue;
+    let top=prefWindow(date, now), outside=false;
+    if(!top && date===today && CFG.HORARIO){ top=bestWindow(date, now); outside=!!top; }   // ya pasó tu horario de hoy
+    if(!top) continue;
+    const alt = outside ? null : altWindow(date, now, top);
     const tomorrow = D.daily.time[D.daily.time.indexOf(today)+1];
     const lbl = date===today?"Hoy":date===tomorrow?"Mañana":new Date(L.rise).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"});
     // hoy: el clima de AHORA (+ aviso si llueve más tarde); otros días: el que predomina con luz
@@ -599,13 +637,15 @@ function render(){
       ${top.r.score<0.1?`<div class="who" style="color:var(--dim)">Sin ola</div><div class="meta">máx ${(top.r.hb*1.2).toFixed(1)} m · viento ${compass(top.h.wd)} ${Math.round(top.h.ws)}</div>`
       :`<div class="who" style="color:${COLOR[top.r.spot][0]}">${NAME[top.r.spot]} <span style="font-weight:400;color:var(--muted);font-size:17px">${(top.r.hb*0.8).toFixed(1)}–${(top.r.hb*1.2).toFixed(1)} m</span></div>
         <div class="meta"><span class="dots" style="display:inline-flex;vertical-align:middle;--c:${COLOR[top.r.spot][0]}">${dots(top.r.stars)}</span> &nbsp;${fmtT(top.from)}–${fmtT(top.to)} · ${compass(top.h.wd)} ${Math.round(top.h.ws)} km/h</div>`}
+      ${outside?`<div class="altnote">tu horario de hoy ya pasó</div>`:alt?`<div class="altnote">fuera de tu horario: ${fmtT(alt.from)}–${fmtT(alt.to)} · ${alt.r.stars} ★</div>`:""}
       ${rainAt?`<div class="rainnote">☂ lluvia desde las ${fmtT(rainAt)}</div>`:""}
-      ${rainAt?"":sparkSVG(hrs)}`;
+      ${rainAt||alt||outside?"":sparkSVG(hrs)}`;
     slot++;
   }
   for(;slot<3;slot++){ $("d"+slot).innerHTML=""; $("d"+slot).onclick=null; }
 
   $("tideUpd").textContent = "act. "+fmtT(D.fetched);
+  fitHero();
   renderRateMeta();
   // escena animada
   SCENE = {hb:r.hb, Tp:Tp||6, eta:ti.y, ws:h.ws, wd:h.wd, rise:dl?dl.rise:0, set:dl?dl.set:0};
@@ -686,6 +726,10 @@ function frame(t){
 requestAnimationFrame(frame);
 
 /* ===================== ENCAJE EN PANTALLA + PANTALLA COMPLETA ===================== */
+function fitHero(){
+  const hero=$("hero"); hero.classList.remove("tight");
+  if(!document.body.classList.contains("mobile") && hero.scrollHeight>hero.clientHeight+2) hero.classList.add("tight");
+}
 function fit(){
   // Área realmente visible: algunos navegadores de kiosco (Fully en la tablet TJD) arrancan con zoom
   // = densidad de pantalla (1,16) y innerWidth/innerHeight dan un área más grande que la que se ve.
@@ -696,6 +740,7 @@ function fit(){
   if(mobile){ app.style.transform=app.style.width=app.style.height=""; return; }
   const s=Math.min(H/800, W/1100);                           // diseño base 1280×800, mínimo 1100 de ancho
   app.style.width=(W/s)+"px"; app.style.height=(H/s)+"px"; app.style.transform=`scale(${s})`;
+  if(D) fitHero();
 }
 addEventListener("resize",fit); addEventListener("orientationchange",()=>setTimeout(fit,300)); fit();
 if(window.visualViewport) visualViewport.addEventListener("resize",fit);
