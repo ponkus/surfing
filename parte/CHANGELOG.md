@@ -2,6 +2,12 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — calificar v2 + "por qué no" en vez de "Sin ola"
+- Maiky: hoy "Sin ola" no era cierto (había ola, mar movido); no podía calificar 0; el tamaño en un día así es relativo.
+- Formulario: botón rápido **"Hoy no se puede · guardar 0 ★"**; calidad **0–5** (0 = no se puede); **"Cómo estaba el mar"**: Glass · Prolijo · Soplado · Algo movido · Movido (vocabulario de Maiky); tamaño **opcional**; pico opcional solo con 0 ★ (se guarda `"ambos"`).
+- Rating: campos NUEVOS `mar`, `pred_all` (predicción para los dos picos); `stars` admite 0; `size`/`size_m` pueden ser null; `spot` puede ser `"ambos"`. No cambió ningún campo existente (ver DECISIONES.md). Modelo sin cambios (`pred.model` v2).
+- Donde decía "Sin ola", ahora dice el factor que más limita según el modelo: Plano · Muy chico · Movido · Sin agua · Mucha agua.
+
 ## 2026-09-27 · Claude Code — horario personal por URL (`?horario=0630-1200`)
 - Maiky casi siempre puede ir de 6:30 a 12, pero la app la pueden ver otros: el horario NO es fijo en la app, va en la URL. Sin parámetro, todo igual que antes (todo el día).
 - Con horario: "En tu horario" (en vez de "Próxima buena"), las tarjetas de los días, "Franja buena" y la mejor hora de mañana (de noche / día elegido) buscan solo dentro del horario, recortando la franja (06:00–08:00 → 06:30–08:00). Aparte, en chiquito, "Fuera de tu horario: …" si afuera hay algo ≥ 2,5 ★ y ≥ 0,5 ★ mejor (en "Próxima", solo si llega antes). El horario se ve sombreado en el gráfico de marea. Si el horario de hoy ya pasó, la tarjeta de Hoy lo dice y muestra lo que queda del día.
