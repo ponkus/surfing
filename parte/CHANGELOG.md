@@ -2,6 +2,9 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — leyenda de la brújula visible en la tablet
+- Las muestras de la leyenda (spans con fondo) no se veían en el WebView de la tablet; ahora son pequeños SVG. Probado en la tablet.
+
 ## 2026-09-27 · Claude Code — "Le entra X %" en vez de la brújula (y la brújula corregida)
 - La brújula de cada pico no se leía a 2 m y era lo más técnico de la pantalla. La tarjeta del pico ahora muestra: altura, estrellas, **"Le entra ▓▓▓ 86 %"** (cuánto del swell principal entra al pico) y una flecha con la dirección y el período. Tocando el pico se abre la brújula grande con una leyenda (se cierra sola al minuto).
 - Corrección: la mancha de la brújula se dibujaba siempre para 8 s; ahora usa el período real del swell principal (el mismo que el %). Modelo sin cambios.
