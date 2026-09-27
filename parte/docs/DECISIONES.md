@@ -2,6 +2,8 @@
 
 Formato: fecha · decisión · por qué · (quién). Lo más nuevo arriba.
 
+- **2026-09-27** · Diseño pensado para leerse a 2 m (tarjetas oscuras opacas, tipografía grande) y días tocables que vuelven solos a "ahora" a los 90 s. · La tablet va como portarretratos; el vidrio azul translúcido tenía poco contraste. · (Maiky)
+- **2026-09-27** · Ícono de clima por día = clima predominante con luz de día (hoy: el de ahora + aviso de lluvia), no el `weather_code` diario de Open-Meteo. · El diario es el peor momento del día y marcaba lluvia todo el día por una hora de llovizna. · (Maiky)
 - **2026-09-27** · No instalar Android más nuevo (GSI). · Oficialmente no hay actualización. Un GSI obliga a desbloquear el bootloader (borra todo), los drivers de Allwinner/Android 11 suelen fallar y no hay firmware de fábrica para recuperar: riesgo de dejarla inservible sin mejora para la web, que depende de Chrome/WebView (se actualizan por Play Store). · (Claude Code, Maiky de acuerdo)
 - **2026-09-27** · El merge a `main` lo hace Claude (no Maiky), con tests en OK y avisando qué se publicó; si el cambio es grande o dudoso, preguntar antes. · Maiky no quiere entrar a GitHub a apretar el botón. · (Maiky)
 - **2026-09-27** · ADB por Wi-Fi (depuración inalámbrica) en vez de USB. · Por USB la tablet se desconecta o queda `offline` (probado con 2 cables y 2 puertos). · (Claude Code)
