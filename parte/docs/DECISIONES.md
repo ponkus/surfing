@@ -2,6 +2,7 @@
 
 Formato: fecha · decisión · por qué · (quién). Lo más nuevo arriba.
 
+- **2026-09-27** · Diseño fijo 1280×800 escalado con `transform: scale` (no layout fluido), y app instalable (PWA) en pantalla completa. · En la tablet, con las barras de Chrome, el layout fluido se pisaba. Escalar garantiza la misma composición en cualquier pantalla; la PWA elimina las barras sin root ni apps de kiosco. · (Claude app, a partir de la foto de Maiky)
 - **2026-09-27** · El proyecto vive en `ponkus/surfing/parte/` y se publica con el GitHub Pages que ya existía. · Hosting gratis ya andando; las cámaras de estadodelmar del mismo repo se pueden integrar a la app. · (Claude app)
 - **2026-09-27** · Memoria compartida: `CLAUDE.md` + `parte/docs/*` + `CHANGELOG.md`, actualizados en cada cambio. · Que Claude Code, la app de Claude y Maiky sepan siempre qué se hizo y por qué. · (Maiky / Claude app)
 - **2026-09-26** · Animación ligada a datos reales (mar = altura/período/marea, rayas = viento, cielo = hora) y no video de fondo ni Higgsfield. · Tablet modesta; y la animación comunica información. Higgsfield queda para logo/marca en la fase ESP32. · (Claude app)

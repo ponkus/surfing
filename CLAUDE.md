@@ -25,7 +25,7 @@ Tiene dos cosas independientes:
    - actualizar `parte/docs/ESTADO.md`;
    - si se tomó una decisión de diseño o de modelo, agregarla a `parte/docs/DECISIONES.md`;
    - si cambió la física o un parámetro del modelo, actualizar `parte/docs/MODELO.md`.
-3. Commits chicos con mensaje en español que diga qué y por qué.
+3. Commits chicos con mensaje en español que diga qué y por qué. Trabajar en una rama y abrir PR: **el merge a `main` lo hace Maiky** (publica en Pages).
 
 Si no se actualizan estos archivos, la próxima instancia de Claude trabaja a ciegas.
 
@@ -34,6 +34,9 @@ Si no se actualizan estos archivos, la próxima instancia de Claude trabaja a ci
 ```
 parte/
   index.html              ← GENERADO. Lo que publica Pages y abre la tablet. NO editar a mano.
+  manifest.webmanifest    ← app instalable (pantalla completa, apaisada)
+  sw.js                   ← service worker (red primero, copia offline). Subir CACHE ("pg-vN") si cambia la lista de archivos
+  icon-192.png, icon-512.png
   build.py                ← arma index.html = src/app.template.html + model/tables.json
   src/app.template.html   ← LA APP (HTML+CSS+JS en un solo archivo). Se edita acá.
   model/
@@ -66,7 +69,8 @@ Tests requieren `pip install playwright` y Chromium. Las capturas quedan en `par
 
 - **Un solo archivo HTML, sin npm ni bundlers ni frameworks.** Vanilla JS. Única dependencia externa: Google Fonts (Outfit). Tiene que andar si la fuente no carga.
 - **Datos**: Open-Meteo (gratis, sin API key, permite CORS desde el navegador). Marine API + Forecast API. No usar APIs pagas ni scrapear Surfline (va contra sus términos).
-- **Hardware objetivo**: tablet TJD MT-1025, Android 11, 10.1", apaisada 1280×800, siempre prendida en modo kiosco. Es modesta: animación limitada a ~30 fps, pausa cuando la pestaña está oculta, modo `?lite` (sin blur, 15 fps). No agregar nada pesado (videos de fondo, librerías grandes).
+- **Hardware objetivo**: tablet TJD MT-1025, Android 11, 10.1", apaisada 1280×800, siempre prendida, app instalada (PWA en pantalla completa). Es modesta: animación limitada a ~30 fps, pausa cuando la pestaña está oculta, modo `?lite` (sin blur, 15 fps). No agregar nada pesado (videos de fondo, librerías grandes).
+- **Encaje en pantalla**: la app se diseña a **1280×800** y `fit()` la escala (`transform: scale`) para cualquier pantalla. Diseñar y medir siempre en 1280×800. En celular vertical (`body.mobile`) no se escala: se apila. Los tests fallan si un bloque pisa a otro en 5 tamaños de pantalla.
 - **Todo lo configurable está en el objeto `CFG`** al principio del `<script>` (coordenadas, desfase de marea, profundidad de bancos, calibración de tamaño, etc.).
 - **Textos de la interfaz en español rioplatense.** Horarios 24 h. Metros y km/h.
 - **Ratings = datos de entrenamiento. No romper su formato.** Se guardan en `localStorage["pg_ratings"]` con: hora exacta, pico, tamaño observado, estrellas, fuente (agua/cámara/orilla), **el pronóstico que la app tenía en ese momento** y la predicción del modelo (`pred.model` = versión). Si se cambia el modelo, subir la versión en `pred.model`. Si se cambia el formato, escribir migración y anotarlo en DECISIONES.md.
