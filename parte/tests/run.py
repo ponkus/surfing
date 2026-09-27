@@ -7,7 +7,7 @@ Uso (desde la raíz del repo):
 - Intercepta Open-Meteo y responde con fixtures/marine.json y fixtures/weather.json
   (capturados el 26/09/2026, cubren 25→29/09/2026: los horarios de prueba tienen que caer ahí).
 - Congela el reloj en el horario pedido y la zona horaria en Buenos Aires.
-- Guarda capturas en parte/tests/out/, prueba el flujo de calificar y que los bloques no se pisen en varios tamaños de pantalla.
+- Guarda capturas en parte/tests/out/, prueba el flujo de calificar, la vista de cámaras y que los bloques no se pisen en varios tamaños de pantalla.
 - Falla (exit 1) si hay errores de JavaScript. Los "Failed to load resource" (Google Fonts bloqueado en el test) se ignoran.
 Requiere: pip install playwright && playwright install chromium
 """
@@ -53,12 +53,33 @@ async def one(p, T, W=1280, H=800):
                         headers={"access-control-allow-origin": "*"})
     await ctx.route("**/*open-meteo.com/**", route)
     await ctx.route("**/fonts.googleapis.com/**", lambda r: r.abort())
+    for pat in ("**/*cloudfront.net/**", "**/*estadodelmar.com.ar/**", "**/cdn.jsdelivr.net/**"):
+        await ctx.route(pat, lambda r: r.abort())                        # cámaras: sin red en el test
     await page.goto("file://" + os.path.abspath(APP))
     await page.wait_for_timeout(2500)
     tag = T[5:16].replace(":", "") + f"_{W}x{H}"
     errs += await page.evaluate(OVERLAP_JS)
     await page.screenshot(path=os.path.join(OUT, f"{tag}.png"))
     hero = await page.inner_text("#spotname"); h = await page.inner_text("#height")
+    # vista de cámaras (los videos se bloquean en el test: se verifica la interfaz, no la señal)
+    if W == 1280 and H == 800 and T == TIMES[-1]:
+        await page.click("#spots .sp[data-spot='Biologia']")
+        await page.wait_for_timeout(600)
+        cam_ok = await page.evaluate("""() => { const c=document.querySelector('#cams');
+          const t=[...c.querySelectorAll('.tile .lbl')].map(x=>x.textContent);
+          return c.classList.contains('open') && t.join('|')==='Biología 1|Biología 2'; }""")
+        await page.wait_for_timeout(1500)
+        await page.screenshot(path=os.path.join(OUT, f"{tag}_camaras.png"))
+        await page.click("#camsOne"); single = await page.evaluate("document.querySelector('#camsGrid').classList.contains('single')")
+        await page.click("#cams .tabs [data-cs='Yacht']"); await page.wait_for_timeout(300)
+        yacht = await page.evaluate("[...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'")
+        await page.click("#camsRate"); pre = await page.evaluate("document.querySelector('#modal').classList.contains('open') && document.querySelector('[data-k=spot] .sel')?.dataset.v==='Yacht' && document.querySelector('[data-k=src] .sel')?.dataset.v==='camara'")
+        await page.click("#cancel"); await page.click("#camsBack")
+        closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video')")
+        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
+            if not okk: errs.append("cámaras: falla " + name)
+        # volver a dejar el formulario de rating como al principio
+        await page.evaluate("document.querySelectorAll('.opts:not([data-k=src]) .opt').forEach(x=>x.classList.remove('sel'))")
     # flujo de rating
     await page.click("#rateBtn"); await page.click('[data-k="spot"] [data-v="Yacht"]')
     await page.click('[data-k="size"] [data-v="cintura"]'); await page.click('[data-k="stars"] [data-v="3"]')

@@ -114,7 +114,33 @@
   .entra .bar{flex:1;height:10px;border-radius:5px;background:rgba(255,255,255,.14);overflow:hidden}
   .entra .bar i{display:block;height:100%;border-radius:5px;background:var(--c)}
   .entra b{color:var(--text);font-size:20px;min-width:52px;text-align:right}
-  .sp .more{font-size:14px;color:var(--dim);white-space:nowrap}
+  .sp .more{font-size:14px;color:var(--dim);white-space:nowrap;background:none;border:0;font-family:inherit;padding:6px 0 6px 10px;cursor:pointer}
+  .sp .camtag{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:var(--text);background:rgba(255,255,255,.08);border:1px solid var(--stroke);border-radius:999px;padding:5px 12px 5px 9px}
+  .sp .camtag svg{width:20px;height:20px}
+  .camsbtn{margin-left:10px}
+
+  /* ===== cámaras ===== */
+  .cams{position:fixed;inset:0;z-index:18;display:none;flex-direction:column;background:#05090f}
+  .cams.open{display:flex}
+  .cams .cbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(10,18,28,.95);border-bottom:1px solid var(--stroke)}
+  .cams .cbtn{font-family:inherit;font-size:18px;font-weight:600;color:var(--text);background:rgba(255,255,255,.07);border:1px solid var(--stroke);border-radius:12px;padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .cams .cbtn svg{width:20px;height:20px}
+  .cams .cbtn.on{background:rgba(47,224,200,.18);border-color:#2fe0c8}
+  .cams .tabs{display:flex;gap:8px;margin:0 auto}
+  .cams .tabs .cbtn{font-size:20px;padding:10px 22px}
+  .cams .tabs .cbtn.on.Biologia{border-color:var(--bio);background:rgba(47,224,200,.16)}
+  .cams .tabs .cbtn.on.Yacht{border-color:var(--yacht);background:rgba(255,143,107,.16)}
+  .cams .rate2{background:linear-gradient(135deg,#2fe0c8,#3aa0ff);color:#04202a;border:0}
+  .cams .grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;min-height:0}
+  .cams .grid.single{grid-template-columns:1fr}
+  .cams .grid.single .tile:not(.focus){display:none}
+  .tile{position:relative;background:#000;border-radius:10px;overflow:hidden;min-height:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .tile video{width:100%;height:100%;object-fit:contain;background:#000}
+  .tile .lbl{position:absolute;left:10px;top:10px;font-size:17px;font-weight:600;padding:5px 11px;border-radius:9px;background:rgba(0,0,0,.55)}
+  .tile .hint{position:absolute;right:10px;top:10px;font-size:14px;color:rgba(255,255,255,.75);padding:5px 10px;border-radius:9px;background:rgba(0,0,0,.45)}
+  .tile .st{position:absolute;inset:auto 0 0 0;padding:10px 12px;font-size:16px;color:#dbe7f3;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent);display:none}
+  .tile.wait .st,.tile.fail .st{display:block}
+  .tile.fail .st{color:#ffc6cc}
   .dialbig{width:300px;height:300px;display:block;margin:6px auto}
   .legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:16px;color:var(--muted);margin-top:8px}
   .legend .k{width:34px;height:14px;display:block}
@@ -200,7 +226,7 @@
 <div class="app">
   <header class="bar">
     <div class="brand"><svg viewBox="0 0 32 32" fill="none"><path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 7-3 3.5 3 5 3" stroke="#2fe0c8" stroke-width="2.4" stroke-linecap="round"/><path d="M3 26c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 7-3 3.5 3 5 3" stroke="#3aa0ff" stroke-width="2.4" stroke-linecap="round" opacity=".6"/><path d="M9 14c0-5 4-9 9-9-3 2-4 5-3 8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>PLAYA GRANDE · MAR DEL PLATA</div>
-    <div class="right"><div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="date"></div></div>
+    <div class="right"><button class="fs camsbtn" id="camsTop" title="Cámaras" aria-label="Cámaras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5z"/></svg></button><div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="date"></div></div>
       <button class="fs" id="fsBtn" title="Pantalla completa" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
   </header>
 
@@ -264,6 +290,16 @@
 </div>
 <div class="modal" id="spotModal"><div class="sheet glass" style="width:min(560px,100%)"><div id="spotBody"></div>
   <div class="actions"><button class="btn primary" id="spotClose">Cerrar</button></div></div></div>
+<div class="cams" id="cams">
+  <div class="cbar">
+    <button class="cbtn" id="camsBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>Parte</button>
+    <div class="tabs"><button class="cbtn Biologia" data-cs="Biologia">Biología</button><button class="cbtn Yacht" data-cs="Yacht">Yacht</button></div>
+    <button class="cbtn" id="camsSplit" title="Pantalla dividida"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="8.5" height="14" rx="1.5"/><rect x="13" y="5" width="8.5" height="14" rx="1.5"/></svg>Dividida</button>
+    <button class="cbtn" id="camsOne" title="Una sola"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/></svg>Una</button>
+    <button class="cbtn rate2" id="camsRate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Calificar</button>
+  </div>
+  <div class="grid" id="camsGrid"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -278,7 +314,19 @@ const CFG = {
   BOMBEO_MIN: 45,
   REFRESH_MIN: 30,
   LITE: false,                                // true = sin blur ni animación pesada (tablets lentas). También ?lite en la URL
-  SHEETS_URL: ""
+  SHEETS_URL: "",
+  // Cámaras por pico: 2 por pico. Cada una prueba sus fuentes en orden (si una no conecta en CAM_TIMEOUT s, pasa a la siguiente).
+  // lineup.surf (favoritos de Maiky) primero; estadodelmar (las de surf.html) de respaldo. Reproductor nativo del navegador
+  // (Android/WebView reproduce HLS solo, como surf.html); en navegadores sin HLS nativo se usa hls.js.
+  CAMS: (()=>{ const LU="https://d1pn38aa7xeaye.cloudfront.net/ArgentinaCameras/", ED2="https://video2.estadodelmar.com.ar/mobile/", ED4="https://video4.estadodelmar.com.ar/mobile/";
+    return {
+      Biologia:[{n:"Biología 1", src:[LU+"ar-bue-mardelplata-pg1-overwiew.stream/playlist.m3u8", ED2+"playagrande/index.m3u8"]},
+                {n:"Biología 2", src:[LU+"ar-bue-mardelplataplayagrandebiologia.stream/playlist.m3u8", ED4+"P.Grande/index.m3u8"]}],
+      Yacht:   [{n:"Yacht 1",    src:[LU+"ar-bue-mardelplata-pg2-overwiew.stream/playlist.m3u8", ED2+"yacht/index.m3u8"]},
+                {n:"Yacht 2",    src:[LU+"ar-bue-mardelplataplayagrandeelyacht.stream/playlist.m3u8", ED2+"yacht/index.m3u8"]}]
+    }; })(),
+  CAM_TIMEOUT: 12,
+  CAMS_IDLE_MIN: 10                           // sin tocar nada, las cámaras se cierran solas (ahorran datos y batería)
 };
 if(location.search.includes("lite")) CFG.LITE = true;
 // Horario personal por URL: ?horario=0630-1200 (la tablet de Maiky). Sin parámetro la app muestra todo el día.
@@ -607,6 +655,7 @@ function render(){
   }
   const R={}; SPOTS.forEach(s=>R[s]=evalHour(h,s));
   const best=R.Biologia.score>=R.Yacht.score?"Biologia":"Yacht", r=R[best];
+  LAST_BEST = best;
   const none = Math.max(R.Biologia.score,R.Yacht.score)<0.1;
 
   document.documentElement.style.setProperty("--c1", none?"#c3d0da":COLOR[best][0]);
@@ -640,8 +689,12 @@ function render(){
       <div class="row"><div class="nm">${NAME[s].toUpperCase()}</div>${d?`<div class="from">${arrowIcon(d.d)}${compass(d.d)} ${d.p.toFixed(0)}s</div>`:""}</div>
       <div class="row"><div class="hv">${x.hb<0.15?"plano":`${(x.hb*0.8).toFixed(1)}–${(x.hb*1.2).toFixed(1)}<small> m</small>`}</div><div class="dots">${dots(x.stars)}</div></div>
       <div class="entra">Le entra<div class="bar"><i style="width:${pct}%"></i></div><b>${pct}%</b></div>
-      <div class="row"><div class="why">${x.tq.txt}</div><span class="more">ver más ›</span></div></div>`; }).join("");
-  document.querySelectorAll(".sp").forEach(el=>el.onclick=e=>{ e.stopPropagation(); openSpot(el.dataset.spot, R[el.dataset.spot], h, isNow?"ahora":fmtT(h.ms)); });
+      <div class="row"><span class="camtag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5z"/></svg>Cámaras</span><button class="more">brújula ›</button></div></div>`; }).join("");
+  // tocar el pico = sus dos cámaras; "brújula ›" = el detalle de por qué le entra o no
+  document.querySelectorAll(".sp").forEach(el=>{
+    el.onclick=e=>{ e.stopPropagation(); openCams(el.dataset.spot); };
+    el.querySelector(".more").onclick=e=>{ e.stopPropagation(); openSpot(el.dataset.spot, R[el.dataset.spot], h, isNow?"ahora":fmtT(h.ms)); };
+  });
 
   // marea
   const tMs=isNow?now:h.ms, ti=tideInfo(tMs);
@@ -732,7 +785,7 @@ addEventListener("resize",resize); resize();
 let last=0;
 function frame(t){
   requestAnimationFrame(frame);
-  if(document.hidden) return;
+  if(document.hidden || CAMS.open) return;
   if(t-last < (CFG.LITE?66:33)) return;            // ~30 fps (15 en modo lite)
   const dt=(t-last)/1000; last=t;
   ctx.clearRect(0,0,W,Hc);
@@ -835,12 +888,72 @@ function renderRateMeta(){
   const rated=R.some(r=>new Date(r.ts).toDateString()===today);
   $("rateMeta").textContent = rated?`${n} ratings · confianza ${n<10?"baja":n<40?"media":"alta"}`:`hoy sin calificar · ${n} en total`;
 }
+/* ===================== CÁMARAS ===================== */
+var LAST_BEST = null;                                        // pico recomendado ahora (lo usa el botón de cámaras de arriba)
+const CAMS = {open:false, spot:"Biologia", mode:"split", focus:0, idleT:null, hls:null};
+const hasNativeHls = () => { const v=document.createElement("video"); return !!v.canPlayType("application/vnd.apple.mpegurl"); };
+function loadHlsJs(){                                         // solo para navegadores sin HLS nativo (compu). La tablet no lo usa.
+  if(window.Hls) return Promise.resolve();
+  if(CAMS.hls) return CAMS.hls;
+  return CAMS.hls = new Promise((ok,ko)=>{ const s=document.createElement("script"); s.src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"; s.onload=ok; s.onerror=ko; document.head.appendChild(s); });
+}
+function stopTile(t){ const v=t.querySelector("video"); clearTimeout(t._to); if(t._hls){ try{t._hls.destroy();}catch(e){} t._hls=null; }
+  if(v){ v.pause(); v.removeAttribute("src"); v.load(); } }
+function playTile(t, cam, i=0, viaJs=false){
+  stopTile(t); const v=t.querySelector("video"), st=t.querySelector(".st");
+  if(i>=cam.src.length){ t.className="tile fail"+(t.classList.contains("focus")?" focus":""); st.textContent="Sin señal · tocá para reintentar"; return; }
+  t.classList.remove("fail"); t.classList.add("wait"); st.textContent=`Conectando${cam.src.length>1?` (fuente ${i+1}/${cam.src.length})`:""}…`;
+  const url=cam.src[i], next=()=>{ if(!viaJs && window.Hls && Hls.isSupported()) return playTile(t,cam,i,true); playTile(t,cam,i+1); };
+  const ok=()=>{ clearTimeout(t._to); t.classList.remove("wait","fail"); };
+  v.onloadeddata=ok; v.onplaying=ok; v.onerror=()=>{ clearTimeout(t._to); next(); };
+  t._to=setTimeout(()=>{ if(v.readyState<2) next(); }, CFG.CAM_TIMEOUT*1000);
+  if(viaJs){ const h=new Hls({lowLatencyMode:false}); t._hls=h; h.on(Hls.Events.ERROR,(e,d)=>{ if(d.fatal){ clearTimeout(t._to); playTile(t,cam,i+1); } }); h.loadSource(url); h.attachMedia(v); }
+  else v.src=url;
+  v.play().catch(()=>{});
+}
+function renderCams(){
+  const g=$("camsGrid"), cams=CFG.CAMS[CAMS.spot];
+  document.querySelectorAll("#cams .tabs .cbtn").forEach(b=>b.classList.toggle("on", b.dataset.cs===CAMS.spot));
+  $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
+  g.querySelectorAll(".tile").forEach(stopTile);
+  g.className="grid"+(CAMS.mode==="single"?" single":"");
+  g.innerHTML = cams.map((c,i)=>`<div class="tile ${i===CAMS.focus?"focus":""}" data-i="${i}"><video muted autoplay playsinline preload="auto"></video>
+    <div class="lbl" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="hint">${CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"}</div><div class="st"></div></div>`).join("");
+  g.querySelectorAll(".tile").forEach(t=>{
+    const c=cams[+t.dataset.i];
+    t.onclick=()=>{ if(t.classList.contains("fail")) return playTile(t,c);
+      if(CAMS.mode==="split"){ CAMS.mode="single"; CAMS.focus=+t.dataset.i; } else CAMS.mode="split"; setLayout(); };
+    if(!hasNativeHls()) loadHlsJs().then(()=>playTile(t,c,0,true)).catch(()=>playTile(t,c)); else playTile(t,c);
+  });
+}
+function setLayout(){                                         // cambia dividida/una sin recargar los videos
+  const g=$("camsGrid"); g.classList.toggle("single", CAMS.mode==="single");
+  g.querySelectorAll(".tile").forEach(t=>{ t.classList.toggle("focus", +t.dataset.i===CAMS.focus); t.querySelector(".hint").textContent=CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"; });
+  $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
+}
+function camsIdle(){ clearTimeout(CAMS.idleT); CAMS.idleT=setTimeout(closeCams, CFG.CAMS_IDLE_MIN*60000); }
+function openCams(spot){ CAMS.spot=spot||CAMS.spot; CAMS.mode="split"; CAMS.focus=0; CAMS.open=true; $("cams").classList.add("open"); renderCams(); camsIdle(); }
+function closeCams(){ CAMS.open=false; clearTimeout(CAMS.idleT); $("camsGrid").querySelectorAll(".tile").forEach(stopTile); $("camsGrid").innerHTML=""; $("cams").classList.remove("open"); }
+$("camsBack").onclick=closeCams;
+$("camsTop").onclick=e=>{ e.stopPropagation(); openCams(LAST_BEST||"Biologia"); };
+document.querySelectorAll("#cams .tabs .cbtn").forEach(b=>b.onclick=()=>{ if(CAMS.spot!==b.dataset.cs){ CAMS.spot=b.dataset.cs; CAMS.focus=0; renderCams(); } });
+$("camsSplit").onclick=()=>{ CAMS.mode="split"; setLayout(); };
+$("camsOne").onclick=()=>{ CAMS.mode="single"; setLayout(); };
+$("cams").addEventListener("pointerdown", camsIdle);
+$("camsRate").onclick=()=>openRate(CAMS.spot,"camara");
+document.addEventListener("visibilitychange",()=>{ if(!CAMS.open) return; $("camsGrid").querySelectorAll("video").forEach(v=>document.hidden?v.pause():v.play().catch(()=>{})); });
+
 const sel={src:"agua"};
 document.querySelectorAll(".opts").forEach(g=>g.addEventListener("click",e=>{
   const b=e.target.closest(".opt"); if(!b) return;
   g.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); sel[g.dataset.k]=b.dataset.v;
 }));
-$("rateBtn").onclick=()=>{ $("rateWhen").textContent="Se guarda con la hora exacta: "+new Date().toLocaleString("es-AR",{hour12:false}); $("modal").classList.add("open"); };
+function markOpt(k,v){ const g=document.querySelector(`.opts[data-k="${k}"]`); if(!g) return; g.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel", x.dataset.v===v)); sel[k]=v; }
+function openRate(spot, src){
+  if(spot) markOpt("spot", spot); if(src) markOpt("src", src);
+  $("rateWhen").textContent="Se guarda con la hora exacta: "+new Date().toLocaleString("es-AR",{hour12:false}); $("modal").classList.add("open");
+}
+$("rateBtn").onclick=()=>openRate();
 $("cancel").onclick=()=>$("modal").classList.remove("open");
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.remove("open"); });
 // Formato de rating (datos de entrenamiento — ver DECISIONES.md 27/09): se AGREGARON campos, no se cambió ninguno.

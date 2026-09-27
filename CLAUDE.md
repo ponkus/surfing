@@ -68,7 +68,8 @@ Tests requieren `pip install playwright` y Chromium. Las capturas quedan en `par
 
 ## Reglas técnicas de `parte/`
 
-- **Un solo archivo HTML, sin npm ni bundlers ni frameworks.** Vanilla JS. Única dependencia externa: Google Fonts (Outfit). Tiene que andar si la fuente no carga.
+- **Un solo archivo HTML, sin npm ni bundlers ni frameworks.** Vanilla JS. Dependencias externas: Google Fonts (Outfit) y, solo en navegadores sin HLS nativo, hls.js de jsdelivr (cámaras). Tiene que andar si no cargan.
+- **Cámaras** (`CFG.CAMS`): 2 por pico, cada una con fuentes en orden (lineup.surf, estadodelmar). Los videos se cargan solo con la vista abierta y se cortan al cerrarla. Es uso personal de Maiky.
 - **Datos**: Open-Meteo (gratis, sin API key, permite CORS desde el navegador). Marine API + Forecast API. No usar APIs pagas ni scrapear Surfline (va contra sus términos).
 - **Hardware objetivo**: tablet TJD MT-1025, Android 11, 10.1", apaisada 1280×800, siempre prendida, app instalada (PWA en pantalla completa). Es modesta: animación limitada a ~30 fps, pausa cuando la pestaña está oculta, modo `?lite` (sin blur, 15 fps). No agregar nada pesado (videos de fondo, librerías grandes).
 - **Encaje en pantalla**: la app se diseña a **1280×800** y `fit()` la escala (`transform: scale`) para cualquier pantalla. Diseñar y medir siempre en 1280×800. En celular vertical (`body.mobile`) no se escala: se apila. Los tests fallan si un bloque pisa a otro en 5 tamaños de pantalla.
