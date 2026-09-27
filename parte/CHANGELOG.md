@@ -2,6 +2,9 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — definición de "soplado"
+- Definido con Maiky y anotado en DECISIONES.md: viento fuerte que pega en el mar y lo desarma; además cuesta agarrar la ola. Solo documentación + comentario en el código.
+
 ## 2026-09-27 · Claude Code — calificar v2 + "por qué no" en vez de "Sin ola"
 - Maiky: hoy "Sin ola" no era cierto (había ola, mar movido); no podía calificar 0; el tamaño en un día así es relativo.
 - Formulario: botón rápido **"Hoy no se puede · guardar 0 ★"**; calidad **0–5** (0 = no se puede); **"Cómo estaba el mar"**: Glass · Prolijo · Soplado · Algo movido · Movido (vocabulario de Maiky); tamaño **opcional**; pico opcional solo con 0 ★ (se guarda `"ambos"`).
