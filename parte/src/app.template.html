@@ -806,7 +806,7 @@ $("cancel").onclick=()=>$("modal").classList.remove("open");
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.remove("open"); });
 // Formato de rating (datos de entrenamiento — ver DECISIONES.md 27/09): se AGREGARON campos, no se cambió ninguno.
 //   stars 0 = "no se puede" · spot "ambos" si no se eligió pico (solo con 0 ★) · size/size_m null si no se cargó
-//   mar: glass | prolijo | soplado | algo_movido | movido | null  (palabras de Maiky) · pred_all: predicción del modelo para los dos picos
+//   mar: glass | prolijo | soplado | algo_movido | movido | null  (palabras de Maiky; soplado = viento fuerte que desarma el mar, ver DECISIONES.md) · pred_all: predicción del modelo para los dos picos
 async function saveRating(){
   const stars=+sel.stars;
   if(sel.stars==null){ toast("Elegí la calidad (0 si no se puede)"); return; }
