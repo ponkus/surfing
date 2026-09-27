@@ -2,6 +2,8 @@
 
 Formato: fecha · decisión · por qué · (quién). Lo más nuevo arriba.
 
+- **2026-09-27** · El merge a `main` lo hace Claude (no Maiky), con tests en OK y avisando qué se publicó; si el cambio es grande o dudoso, preguntar antes. · Maiky no quiere entrar a GitHub a apretar el botón. · (Maiky)
+- **2026-09-27** · ADB por Wi-Fi (depuración inalámbrica) en vez de USB. · Por USB la tablet se desconecta o queda `offline` (probado con 2 cables y 2 puertos). · (Claude Code)
 - **2026-09-27** · Primero preparar la tablet (ADB, desde la Mac con Claude Code) y después instalar la app. · Pedido de Maiky: tablet lenta y con apps de Google que no se usan. · (Maiky)
 - **2026-09-27** · No flashear firmware alternativo. · No existen ROMs mantenidas para TJD MT-1025 y desbloquear el bootloader en Unisoc suele requerir clave del fabricante: riesgo de brick sin beneficio seguro. Limpieza por ADB reversible en su lugar. · (Claude app)
 - **2026-09-27** · Fully Kiosk Browser en vez de PWA instalada. · El launcher de la tablet no permite accesos directos: Chrome no ofrece "Agregar a pantalla principal". · (Claude app)

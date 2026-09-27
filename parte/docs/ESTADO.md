@@ -27,7 +27,7 @@
 7. Fase 2: portar a ESP32-S3 (JC3248W535).
 
 ## Abierto / dudas
-- Push: la app de Claude ya puede pushear ramas y abrir PRs. **El merge a `main` lo hace Maiky** (el sistema no deja que Claude mergee sin revisión humana).
+- Push/merge: desde el 27/09 **Claude hace el merge a `main`** (pedido de Maiky), con tests en OK. Claude Code en la Mac puede (usa `gh`). La app de Claude puede tener bloqueado mergear sin revisión humana: en ese caso, dejar el PR listo y avisar para que lo mergee Claude Code.
 - Netlify (`UNMDP/surfcam`) está conectado al repo y falla en cada PR porque busca la carpeta `surf2`, que no existe. No afecta a GitHub Pages. Arreglo: vaciar "Base directory" en Netlify o desconectarlo.
 - Sobreestimación de tamaño con mar corto (5–6 s): esperar ratings antes de tocar `SIZE_CAL`.
 - ¿Tamaño real de los bancos (`D_BAR`)? Se calibra con ratings.
