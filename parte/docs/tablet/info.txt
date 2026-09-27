@@ -1,0 +1,9 @@
+ro.product.model=MT_1025QU
+ro.build.version.release=11
+ro.board.platform=ceres
+ro.hardware=sun50iw10p1
+ro.soc.model=
+ro.build.display.id=MT-1025QU_V1.00_20221125
+MemTotal:        4004488 kB
+MemFree:         1075432 kB
+MemAvailable:    2811748 kB

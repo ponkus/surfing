@@ -1,0 +1,20 @@
+Tasks: 212 total,   1 running, 211 sleeping,   0 stopped,   0 zombie
+  Mem: 16777216T total, 16777216T used,   977480K free,   2060288 buffers
+ Swap: 16777216T total,  62435328 used, 16777216T free,  1759924K cached
+400%cpu  68%user   0%nice  19%sys 306%idle   0%iow   3%irq   3%sirq   0%host
+   PID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ ARGS
+   414 system       18  -2 1.6G 271M 216M S 70.9   6.9   5:22.08 system_server
+ 14396 shell        20   0 8.9M 3.2M 2.7M R 19.3   0.0   0:00.08 top -b -n 1 -m 15
+ 14247 root         RT   0    0    0    0 S  3.2   0.0   0:06.98 [sugov:0]
+   278 system       -3  -8  60M  21M  15M S  3.2   0.5   4:46.24 surfaceflinger
+ 14387 shell        20   0 8.6M 3.1M 2.6M S  0.0   0.0   0:00.01 sleep 2
+ 14350 root          0 -20    0    0    0 I  0.0   0.0   0:00.00 [kworker/u9:0]
+ 14349 root          0 -20    0    0    0 I  0.0   0.0   0:00.00 [kworker/0:1H-mmc_complete]
+ 14342 root         20   0    0    0    0 I  0.0   0.0   0:00.00 [kworker/1:1-mm_percpu_wq]
+ 14319 root         20   0    0    0    0 I  0.0   0.0   0:00.00 [kworker/0:0]
+ 14073 root         20   0    0    0    0 I  0.0   0.0   0:00.02 [kworker/2:0-events]
+ 14072 shell        20   0  25M 4.9M 4.1M S  0.0   0.1   0:01.13 adbd --root_seclabel=u:r:su:s0
+ 13878 root          0 -20    0    0    0 I  0.0   0.0   0:00.04 [kworker/0:2H-mmc_complete]
+ 13812 u0_a85       20   0 1.3G 125M  94M S  0.0   3.1   0:01.51 com.google.android.videos
+ 13770 u0_a88       20   0 1.0G 110M  81M S  0.0   2.8   0:00.61 com.google.android.tts
+ 13685 u0_a78       20   0 1.4G 208M 165M S  0.0   5.3   0:03.00 com.google.android.gm

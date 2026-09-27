@@ -1,0 +1,15 @@
+package:com.android.nfc
+package:com.google.android.apps.assistant
+package:com.google.android.apps.docs
+package:com.google.android.apps.maps
+package:com.google.android.apps.photosgo
+package:com.google.android.apps.searchlite
+package:com.google.android.apps.tachyon
+package:com.google.android.apps.wellbeing
+package:com.google.android.apps.youtube.music
+package:com.google.android.calendar
+package:com.google.android.contacts
+package:com.google.android.feedback
+package:com.google.android.gm
+package:com.google.android.videos
+package:com.google.android.youtube
