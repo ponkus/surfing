@@ -53,6 +53,7 @@ parte/
     MODELO.md             ← la física y los parámetros, con fórmulas
     DECISIONES.md         ← registro de decisiones con fecha y motivo
     ESTADO.md             ← hecho / siguiente / abierto  (leer primero)
+    TABLET.md             ← preparar la tablet por ADB (Claude Code en la Mac): pasos, qué NO tocar
   CHANGELOG.md
 ```
 

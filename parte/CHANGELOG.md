@@ -2,6 +2,11 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude app — plan de preparación de la tablet
+- `docs/TABLET.md`: instrucciones para que Claude Code prepare la tablet por ADB desde la Mac (diagnóstico, limpieza reversible, ajustes), con lista de paquetes que no se tocan.
+- Chrome en la tablet no ofrece "Agregar a pantalla principal" (ni en ⋮ ni en Compartir): se usará Fully Kiosk Browser.
+- PR #5 publicado (encaje en pantalla + pantalla completa + PWA). Maiky confirmó que en la tablet se ve bien.
+
 ## 2026-09-27 · Claude app — encaje en pantalla + pantalla completa
 - Problema (foto de Maiky en la tablet): dentro de Chrome las barras le sacan ~200 px de alto y los bloques se pisaban.
 - La app ahora se diseña a 1280×800 y `fit()` la escala para que entre justa en cualquier pantalla. En celular vertical (`body.mobile`) se apila y scrollea.
