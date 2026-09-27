@@ -22,3 +22,7 @@ adb shell settings delete global animator_duration_scale
 adb shell settings put global stay_on_while_plugged_in 7
 adb shell settings put system screen_off_timeout 60000
 adb shell settings put system screen_brightness 255
+# Paso 3 (optimización)
+adb shell cmd deviceidle whitelist -com.android.chrome
+adb shell pm enable com.google.android.tts
+adb shell pm enable com.google.android.apps.nbu.files
