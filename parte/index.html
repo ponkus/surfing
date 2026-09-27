@@ -68,7 +68,7 @@
   .live{width:10px;height:10px;flex:none;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(62,227,154,.7);animation:pulse 2s infinite}
   .live.off{background:#ffd166;animation:none}
   @keyframes pulse{70%{box-shadow:0 0 0 6px rgba(62,227,154,0)}100%{box-shadow:0 0 0 0 rgba(62,227,154,0)}}
-  .spotname{font-size:84px;font-weight:800;line-height:.95;letter-spacing:-1px;margin-top:6px;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .spotname{display:inline-block;padding-right:4px;font-size:84px;font-weight:800;line-height:.95;letter-spacing:-1px;margin-top:6px;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .height{font-size:50px;font-weight:400;margin-top:6px}
   .height b{font-weight:700}
   .height small{font-size:24px;color:var(--muted);margin-left:4px}
@@ -90,6 +90,7 @@
   /* si el contenido del cuadro central no entra (muchas etiquetas + aviso), se compacta en vez de cortarse */
   .hero.tight{gap:8px;padding-top:16px;padding-bottom:16px}
   .hero.tight .spotname{font-size:70px}
+  .spotname.plain{background:none;color:#eef3f7}
   .hero.tight .height{font-size:42px;margin-top:2px}
   .hero.tight .gauge{width:112px;height:112px}
   .hero.tight .chip{font-size:16px;padding:6px 12px 6px 9px}
@@ -596,6 +597,7 @@ function render(){
     $("nextwin").innerHTML = (nw
       ? `<span class="tag">${tagNext}</span><span>${dayLabel(nw.h.t.slice(0,10),today)} ${winTxt(nw)}</span>`
       : `<span class="tag">${tagNext}</span><span>No aparece en los próximos días</span>`)+(alt?altTxt(alt,true):""); }
+  $("spotname").classList.toggle("plain", none);          // "Hoy no" en blanco sólido (el degradé era para los nombres de pico)
   $("spotname").textContent = none?(/^(Hoy|Mañana)$/.test(dayWord)?dayWord+" no":whyNot(r)):NAME[best];
   $("height").innerHTML = none?`<small style="margin:0">máx</small> ${rangeTxt(Math.max(R.Biologia.hb,R.Yacht.hb))}`:rangeTxt(r.hb);
   $("gauge").style.display = none?"none":"";

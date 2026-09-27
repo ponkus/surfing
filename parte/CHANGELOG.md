@@ -2,6 +2,9 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — "Hoy no" legible
+- Maiky: "Hoy no" se veía parcialmente (el degradé se calculaba sobre todo el ancho del cuadro y en la tablet "no" quedaba apagado). Ahora "Hoy no"/motivo va en blanco sólido y el degradé de los nombres de pico se ajusta al ancho de la palabra.
+
 ## 2026-09-27 · Claude Code — corrección: "soplado" ≠ "movido"
 - Maiky corrigió la definición: soplado es el VIENTO (fuerte, ola bien formada pero "tocada"); movido es el MAR (desordenado). Son independientes. Corregido en DECISIONES.md y en el comentario del código.
 
