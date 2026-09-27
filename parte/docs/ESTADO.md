@@ -1,6 +1,6 @@
 # Estado del proyecto
 
-**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27 (Claude app).
+**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27, mediodía (Claude app).
 
 ## Hecho
 - Geometría real de Playa Grande (OSM) y tablas de exposición/viento por pico (`model/`).
@@ -8,15 +8,15 @@
 - App v2 (`src/app.template.html` → `index.html`): diseño nuevo con cielo según la hora, mar animado con datos reales, dial por pico, marea con ventanas de bombeo, clima, hoy + 2 días, "próxima buena", ratings con exportación.
 - Tests headless con datos reales (`tests/run.py`): 4 horarios, flujo de rating. Pasan.
 - Documentación y memoria compartida (este archivo, `CLAUDE.md`, `DECISIONES.md`, `CHANGELOG.md`).
+- **Publicada** en `https://ponkus.github.io/surfing/parte/` (PR #4). Probada en la tablet: fluida, pero se pisaba dentro de Chrome → arreglado (encaje 1280×800 escalado + pantalla completa + app instalable), en PR #5.
 
 ## En curso
-- **Tablet TJD MT-1025**: revivió con cargador USB-A. Falta: versión exacta de Android, RAM y chip (Ajustes → Acerca de). Con eso: ¿versión completa o `?lite`?
-- **Publicar**: la rama `parte-app` está lista; falta mergearla a `main` para que Pages publique `ponkus.github.io/surfing/parte/`.
-  (La app de Claude no tiene permiso de push al repo todavía — ver "Abierto".)
+- **Tablet TJD MT-1025**: revivió con cargador USB-A. Anda fluida en la versión completa (no hace falta `?lite` por ahora). Falta dato de Android/RAM/chip (no urgente).
+- **PR #5** (encaje + pantalla completa + PWA): esperando que Maiky lo mergee. Después: instalarla en la tablet con "Agregar a pantalla principal".
 
 ## Siguiente (en orden)
-1. Mergear a `main` y abrir `https://ponkus.github.io/surfing/parte/` en la tablet.
-2. Configurar la tablet: debloat por ADB, modo kiosco, que abra la app al prender.
+1. Mergear PR #5 e instalar la app en la tablet (Chrome → ⋮ → Agregar a pantalla principal / Instalar app).
+2. Configurar la tablet: debloat por ADB, que abra la app al prender (la PWA ya evita las barras; modo kiosco solo si hace falta bloquear salir).
 3. Ratings a **Google Sheet** (Apps Script Web App → `CFG.SHEETS_URL`), para no depender de la tablet.
 4. **Marea oficial del SHN** (Mar del Plata): reemplazar/corregir `TIDE_OFFSET_MIN`.
 5. Integrar las **cámaras** de estadodelmar (Playa Grande / Yacht) en la app, al lado de "Calificar" — ya están en `surf.html`.
@@ -25,7 +25,8 @@
 8. Fase 2: portar a ESP32-S3 (JC3248W535).
 
 ## Abierto / dudas
-- Push desde la app de Claude: falta instalar la **Claude GitHub App** en la cuenta `ponkus` (o reconectar GitHub en claude.ai → Conectores). Mientras tanto, Claude Code o Maiky mergean.
+- Push: la app de Claude ya puede pushear ramas y abrir PRs. **El merge a `main` lo hace Maiky** (el sistema no deja que Claude mergee sin revisión humana).
+- Netlify (`UNMDP/surfcam`) está conectado al repo y falla en cada PR porque busca la carpeta `surf2`, que no existe. No afecta a GitHub Pages. Arreglo: vaciar "Base directory" en Netlify o desconectarlo.
 - Sobreestimación de tamaño con mar corto (5–6 s): esperar ratings antes de tocar `SIZE_CAL`.
 - ¿Tamaño real de los bancos (`D_BAR`)? Se calibra con ratings.
 - ¿El bombeo es real o memoria selectiva? Se mide con ratings.

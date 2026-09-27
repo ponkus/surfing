@@ -2,7 +2,15 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude app — encaje en pantalla + pantalla completa
+- Problema (foto de Maiky en la tablet): dentro de Chrome las barras le sacan ~200 px de alto y los bloques se pisaban.
+- La app ahora se diseña a 1280×800 y `fit()` la escala para que entre justa en cualquier pantalla. En celular vertical (`body.mobile`) se apila y scrollea.
+- Botón de pantalla completa (arriba a la derecha) y en pantallas táctiles el primer toque pasa a pantalla completa.
+- App instalable: `manifest.webmanifest` (display fullscreen, apaisada), `sw.js` (red primero, copia offline), íconos `icon-192/512.png`. "Agregar a pantalla principal" la abre sin barras de Chrome ni de Android.
+- Tests: ahora prueban 5 tamaños de pantalla y fallan si un bloque pisa a otro o el contenido queda cortado (verificado: la versión anterior falla en 1280×590).
+
 ## 2026-09-27 · Claude app
+- Publicada en `https://ponkus.github.io/surfing/parte/` (PR #4 mergeado por Maiky).
 - El proyecto pasa al repo `ponkus/surfing` en `parte/` (antes vivía en archivos sueltos).
 - `build.py` (arma `index.html`), `model/export_tables.py`, `tests/run.py` con fixtures reales.
 - Documentación: `CLAUDE.md` (raíz), `docs/PROYECTO.md`, `docs/MODELO.md`, `docs/DECISIONES.md`, `docs/ESTADO.md`.

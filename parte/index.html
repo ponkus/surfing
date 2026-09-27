@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07121f">
 <title>Playa Grande</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,8 +28,11 @@
     overflow:hidden;
   }
   #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-  .app{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:14px;padding:18px 22px 20px}
-  @media (max-width:900px){ body{overflow:auto} .app{height:auto} }
+  /* La app se diseña a 1280×800 y fit() la escala para que entre justa en cualquier pantalla (ver JS "ENCAJE").
+     En celular vertical (body.mobile) no se escala: se apila y se scrollea. */
+  .app{position:absolute;top:0;left:0;z-index:1;width:1280px;height:800px;transform-origin:0 0;display:grid;grid-template-rows:auto 1fr auto;gap:14px;padding:18px 22px 20px}
+  body.mobile{overflow:auto}
+  body.mobile .app{position:relative;width:auto;height:auto;transform:none}
 
   /* top bar */
   .bar{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -36,7 +43,19 @@
   .clock .d{font-size:13px;color:var(--dim);margin-top:3px}
 
   .main{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;min-height:0}
-  @media (max-width:900px){.main{grid-template-columns:1fr}}
+  body.mobile .main{grid-template-columns:1fr}
+  body.mobile .spotname{font-size:52px}
+  body.mobile .app{padding:14px 14px 18px}
+  body.mobile .bar{flex-wrap:wrap}
+  body.mobile .brand{font-size:11px;letter-spacing:2px}
+  body.mobile .clock .t{font-size:24px}
+  body.mobile .hero{padding:18px}
+  body.mobile .hero-top{flex-wrap:wrap}
+  body.mobile .gauge{width:104px;height:104px}
+  body.mobile .gauge .val b{font-size:32px}
+  body.mobile .spots{grid-template-columns:1fr}
+  body.mobile .wx{grid-template-columns:repeat(3,1fr)}
+  body.mobile .rate{grid-column:1/-1;padding:16px;flex-direction:row}
   .glass{background:var(--glass);border:1px solid var(--stroke);border-radius:24px;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%)}
   .lite .glass{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(8,20,34,.72)}
 
@@ -94,7 +113,11 @@
 
   /* days */
   .foot{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:14px;align-items:stretch}
-  @media (max-width:900px){.foot{grid-template-columns:1fr 1fr}}
+  body.mobile .foot{grid-template-columns:1fr 1fr}
+  .fs{background:var(--glass2);border:1px solid var(--stroke);color:var(--muted);border-radius:12px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:14px}
+  .fs svg{width:20px;height:20px}
+  .fs.hide{display:none}
+  .right{display:flex;align-items:center}
   .day{padding:14px 16px 12px;display:flex;flex-direction:column;gap:4px}
   .day .top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted);text-transform:capitalize}
   .day .top svg{width:22px;height:22px}
@@ -138,7 +161,8 @@
 <div class="app">
   <header class="bar">
     <div class="brand"><svg viewBox="0 0 32 32" fill="none"><path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 7-3 3.5 3 5 3" stroke="#2fe0c8" stroke-width="2.4" stroke-linecap="round"/><path d="M3 26c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 7-3 3.5 3 5 3" stroke="#3aa0ff" stroke-width="2.4" stroke-linecap="round" opacity=".6"/><path d="M9 14c0-5 4-9 9-9-3 2-4 5-3 8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>PLAYA GRANDE · MAR DEL PLATA</div>
-    <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="date"></div></div>
+    <div class="right"><div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="date"></div></div>
+      <button class="fs" id="fsBtn" title="Pantalla completa" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
   </header>
 
   <section class="main">
@@ -603,6 +627,29 @@ function frame(t){
   ctx.strokeStyle="rgba(255,255,255,.22)"; ctx.lineWidth=1.5; ctx.stroke();
 }
 requestAnimationFrame(frame);
+
+/* ===================== ENCAJE EN PANTALLA + PANTALLA COMPLETA ===================== */
+function fit(){
+  const app=document.querySelector(".app"), W=innerWidth, H=innerHeight;
+  const mobile = W<900 && H>W;                              // celular vertical: layout apilado con scroll
+  document.body.classList.toggle("mobile", mobile);
+  if(mobile){ app.style.transform=app.style.width=app.style.height=""; return; }
+  const s=Math.min(H/800, W/1100);                           // diseño base 1280×800, mínimo 1100 de ancho
+  app.style.width=(W/s)+"px"; app.style.height=(H/s)+"px"; app.style.transform=`scale(${s})`;
+}
+addEventListener("resize",fit); addEventListener("orientationchange",()=>setTimeout(fit,300)); fit();
+const isFull=()=>!!document.fullscreenElement || matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches;
+function goFull(){
+  const el=document.documentElement;
+  if(!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({navigationUI:"hide"}).then(()=>{ try{ screen.orientation.lock("landscape").catch(()=>{}); }catch(e){} }).catch(()=>{});
+}
+function syncFs(){ $("fsBtn").classList.toggle("hide", isFull()); setTimeout(fit,200); }
+$("fsBtn").onclick=e=>{ e.stopPropagation(); goFull(); };
+document.addEventListener("fullscreenchange",syncFs); syncFs();
+// en tablet/celular: el primer toque en cualquier lado pasa a pantalla completa
+if(matchMedia("(pointer: coarse)").matches) document.addEventListener("pointerdown",()=>{ if(!isFull()) goFull(); },{once:true});
+// app instalable (Agregar a pantalla principal → se abre sin barras) y fallback sin conexión
+if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 /* ===================== RELOJ ===================== */
 function tick(){
