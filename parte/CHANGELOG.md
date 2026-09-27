@@ -2,6 +2,10 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — botón de pantalla completa inteligente + carga a prueba de cortes
+- El botón de pantalla completa se esconde solo cuando la página ya ocupa toda la pantalla (Fully Kiosk, F11) y en equipos sin esa función (iPhone). Sigue apareciendo en celulares Android, iPad y compus.
+- Carga de datos: corte a los 20 s si Open-Meteo no responde (el 27/09 la API de pronóstico se colgó y la pantalla quedaba vacía hasta el próximo ciclo de 30 min); reintento cada 1 min si falla; al arrancar se muestran enseguida los últimos datos guardados (`pg_cache`) mientras llegan los nuevos. Probado simulando la API colgada.
+
 ## 2026-09-27 · Claude Code — arreglo: la web arrancaba agrandada en Fully Kiosk
 - Problema (Maiky): en la tablet, al abrir Fully la web aparecía ~16 % más grande y cortada; había que achicarla con los dedos. Reproducido con captura por ADB: Fully arranca con zoom = densidad de pantalla (186/160 = 1,16) e `innerWidth/innerHeight` dan un área mayor que la visible.
 - `fit()` ahora usa el área realmente visible (`visualViewport`), se recalcula al cargar y cuando cambia el zoom. Viewport con `maximum-scale=1, user-scalable=no` (no se agranda con los dedos por accidente).

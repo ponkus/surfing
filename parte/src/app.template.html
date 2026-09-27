@@ -309,7 +309,8 @@ async function load(){
   const wv = "wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,apparent_temperature,weather_code,precipitation_probability,is_day";
   const dv = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset";
   const q = (p,o) => `latitude=${p.lat}&longitude=${p.lon}&timezone=${encodeURIComponent(CFG.tz)}&past_days=1&forecast_days=5&${o}`;
-  const get = u => fetch(u).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); });
+  // corte a los 20 s: si Open-Meteo se cuelga no queremos esperar para siempre (pasó el 27/09)
+  const get = u => fetch(u,{signal:AbortSignal.timeout?AbortSignal.timeout(20000):undefined}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); });
   const [m,w] = await Promise.all([
     get(`https://marine-api.open-meteo.com/v1/marine?${q(CFG.marine,"hourly="+mv)}`),
     get(`https://api.open-meteo.com/v1/forecast?${q(CFG.weather,"hourly="+wv+"&daily="+dv)}`)
@@ -642,12 +643,21 @@ function fit(){
 addEventListener("resize",fit); addEventListener("orientationchange",()=>setTimeout(fit,300)); fit();
 if(window.visualViewport) visualViewport.addEventListener("resize",fit);
 addEventListener("load",()=>{ fit(); setTimeout(fit,500); setTimeout(fit,2000); });   // el WebView puede ajustar el zoom después de cargar
-const isFull=()=>!!document.fullscreenElement || matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches;
+// ¿la página ya ocupa toda la pantalla? (p. ej. Fully Kiosk en la tablet, o F11 en la compu). Se compara
+// lado largo con lado largo porque en iOS screen.width/height no giran con la orientación.
+function fillsScreen(){
+  const vv=window.visualViewport, w=Math.max(innerWidth, vv?vv.width*vv.scale:0), h=Math.max(innerHeight, vv?vv.height*vv.scale:0);
+  const sw=screen.width, sh=screen.height;
+  return Math.max(w,h)>=Math.max(sw,sh)*0.97 && Math.min(w,h)>=Math.min(sw,sh)*0.97;
+}
+const isFull=()=>!!document.fullscreenElement || matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches || fillsScreen();
 function goFull(){
   const el=document.documentElement;
   if(!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({navigationUI:"hide"}).then(()=>{ try{ screen.orientation.lock("landscape").catch(()=>{}); }catch(e){} }).catch(()=>{});
 }
-function syncFs(){ $("fsBtn").classList.toggle("hide", isFull()); setTimeout(fit,200); }
+// sin API de pantalla completa (iPhone) el botón no sirve: se esconde
+function syncFs(){ $("fsBtn").classList.toggle("hide", isFull() || !document.documentElement.requestFullscreen); setTimeout(fit,200); }
+addEventListener("resize",()=>$("fsBtn").classList.toggle("hide", isFull() || !document.documentElement.requestFullscreen));
 $("fsBtn").onclick=e=>{ e.stopPropagation(); goFull(); };
 document.addEventListener("fullscreenchange",syncFs); syncFs();
 // en tablet/celular: el primer toque en cualquier lado pasa a pantalla completa
@@ -694,12 +704,18 @@ $("expJson").onclick=()=>{ const b=new Blob([JSON.stringify(getRatings(),null,1)
 function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2000); }
 
 /* ===================== ARRANQUE ===================== */
+let retryT=null;
 async function refresh(){
+  clearTimeout(retryT);
   try{ await load(); $("err").style.display="none"; }
   catch(e){ const c=localStorage.getItem("pg_cache"); if(c) D=JSON.parse(c);
-    $("err").style.display="block"; $("err").textContent="Sin conexión con Open-Meteo"+(c?" · mostrando últimos datos":""); if(!D) return; }
+    $("err").style.display="block"; $("err").textContent="Sin conexión con Open-Meteo"+(c?" · mostrando últimos datos":"");
+    retryT=setTimeout(refresh, 60000);                     // reintentar en 1 min, no esperar los 30 del ciclo normal
+    if(!D) return; }
   render();
 }
+// al arrancar (p. ej. después de un corte de luz) mostrar enseguida los últimos datos guardados, mientras llegan los nuevos
+try{ const c=localStorage.getItem("pg_cache"); if(c){ D=JSON.parse(c); render(); } }catch(e){ D=null; }
 refresh();
 setInterval(refresh, CFG.REFRESH_MIN*60000);
 setInterval(()=>{ if(D) render(); }, 5*60000);
