@@ -491,11 +491,17 @@ function dayLabel(date, today){
   if(date===today) return "Hoy"; if(date===tomorrow) return "Mañana";
   const L=dayLight(date); return new Date(L?L.rise:parseLocal(date+"T12:00")).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"});
 }
-function bestHourOf(date, fromMs=0){
+// Mejor hora de un día (con luz, desde fromMs) y la franja CONTINUA alrededor donde ese pico sigue a ≤ 0,5 ★ de la mejor.
+// Una sola cuenta para "Próxima buena", la tarjeta del día y "Franja buena": los tres tienen que decir lo mismo.
+function bestWindow(date, fromMs=0){
   const L=dayLight(date); if(!L) return null;
-  const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set&&x.ms>=fromMs);
-  let bb=null; for(const x of hrs) for(const sp of SPOTS){ const e=evalHour(x,sp); if(!bb||e.score>bb.e.score) bb={e,x}; }
-  return bb;
+  const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set&&x.ms>=fromMs-3600000);
+  if(!hrs.length) return null;
+  let top=null, ti=0;
+  hrs.forEach((x,i)=>{ for(const sp of SPOTS){ const e=evalHour(x,sp); if(!top||e.score>top.r.score){ top={r:e,h:x}; ti=i; } } });
+  const ok=i=>evalHour(hrs[i],top.r.spot).score>=top.r.score-0.1;
+  let a=ti, b=ti; while(a>0&&ok(a-1)) a--; while(b<hrs.length-1&&ok(b+1)) b++;
+  return {...top, from:hrs[a].ms, to:hrs[b].ms+3600000, hrs};
 }
 // clima de un día: el que predomina con luz de día (no el peor momento, como da Open-Meteo en "daily") + primera hora de lluvia
 function dayWx(date, fromMs){
@@ -516,8 +522,8 @@ function render(){
   // de noche, la tarjeta principal muestra la mejor hora de la próxima mañana/día
   let h=hNow, heroLbl="Ahora", dayWord="Hoy", focusDate=today, isNow=true;
   if(SEL && (SEL===today || !dayLight(SEL))) SEL=null;
-  if(SEL){ const bb=bestHourOf(SEL);
-    if(bb){ h=bb.x; isNow=false; focusDate=SEL; dayWord=dayLabel(SEL,today); heroLbl=dayWord+" · "+fmtT(bb.x.ms); } else SEL=null; }
+  if(SEL){ const bb=bestWindow(SEL);
+    if(bb){ h=bb.h; isNow=false; focusDate=SEL; dayWord=dayLabel(SEL,today); heroLbl=dayWord+" · "+fmtT(bb.h.ms); } else SEL=null; }
   else if(night){
     const tgtDate = now>dl.set ? D.daily.time[dl.i+1] : today, L2 = tgtDate?dayLight(tgtDate):null;
     if(L2){ const hrs=D.H.filter(x=>x.t.startsWith(tgtDate)&&x.ms>=L2.rise-1800000&&x.ms<=L2.set);
@@ -533,18 +539,15 @@ function render(){
   $("eyebrow").textContent = heroLbl;
   $("live").classList.toggle("off", !isNow);
   $("backNow").classList.toggle("show", !!SEL);
-  // próxima ventana buena (≥ 2.5 estrellas) con luz de día
-  let nw=null;
-  for(const x of D.H){ if(x.ms<now) continue; const L3=dayLight(x.t.slice(0,10)); if(!L3||x.ms<L3.rise||x.ms>L3.set) continue;
-    const es=SPOTS.map(s=>evalHour(x,s)).sort((a,b)=>b.score-a.score); if(es[0].score>=0.5){ nw={x,e:es[0]}; break; } }
-  // con un día elegido: la franja buena de ese día en vez de "próxima buena"
-  if(SEL){ const L4=dayLight(SEL), bs=R[best], hrs=D.H.filter(x=>x.t.startsWith(SEL)&&x.ms>=L4.rise-1800000&&x.ms<=L4.set);
-    const win=hrs.filter(x=>evalHour(x,best).score>=bs.score-0.1);
-    nw=null; $("nextwin").innerHTML = none ? `<span class="tag">Ese día</span><span>Sin ola con luz de día</span>`
-      : `<span class="tag">Franja buena</span><span><b>${fmtT(win[0].ms)}–${fmtT(win[win.length-1].ms+3600000)}</b> · <span style="color:${COLOR[best][0]}">${NAME[best]}</span> · ${bs.stars} ★</span>`; }
-  else $("nextwin").innerHTML = nw
-    ? `<span class="tag">Próxima buena</span><span><b>${new Date(nw.x.ms).toLocaleDateString("es-AR",{weekday:"long"})} ${fmtT(nw.x.ms)}</b> · <span style="color:${COLOR[nw.e.spot][0]}">${NAME[nw.e.spot]}</span> ${(nw.e.hb*0.8).toFixed(1)}–${(nw.e.hb*1.2).toFixed(1)} m · ${nw.e.stars} ★</span>`
-    : `<span class="tag">Próxima buena</span><span>No aparece en los próximos días</span>`;
+  // próxima buena: el primer día con alguna hora ≥ 2,5 ★, mostrando SU mejor franja (la misma que su tarjeta de abajo)
+  const winTxt = w => `<b>${fmtT(w.from)}–${fmtT(w.to)}</b> · <span style="color:${COLOR[w.r.spot][0]}">${NAME[w.r.spot]}</span> ${(w.r.hb*0.8).toFixed(1)}–${(w.r.hb*1.2).toFixed(1)} m · ${w.r.stars} ★`;
+  if(SEL){ const bw=bestWindow(SEL);
+    $("nextwin").innerHTML = none||!bw ? `<span class="tag">Ese día</span><span>Sin ola con luz de día</span>` : `<span class="tag">Franja buena</span><span>${winTxt(bw)}</span>`; }
+  else { let nw=null;
+    for(let k=Math.max(0,D.daily.time.indexOf(today)); k<D.daily.time.length && !nw; k++){ const bw=bestWindow(D.daily.time[k], now); if(bw && bw.r.score>=0.5) nw=bw; }
+    $("nextwin").innerHTML = nw
+      ? `<span class="tag">Próxima buena</span><span>${dayLabel(nw.h.t.slice(0,10),today)} ${winTxt(nw)}</span>`
+      : `<span class="tag">Próxima buena</span><span>No aparece en los próximos días</span>`; }
   $("spotname").textContent = none?(/^(Hoy|Mañana)$/.test(dayWord)?dayWord+" no":"Sin ola"):NAME[best];
   $("height").innerHTML = none?`<small style="margin:0">máx</small> ${rangeTxt(Math.max(R.Biologia.hb,R.Yacht.hb))}`:rangeTxt(r.hb);
   $("gauge").style.display = none?"none":"";
@@ -580,9 +583,7 @@ function render(){
   for(let k=k0;k<D.daily.time.length&&slot<3;k++){
     const date=D.daily.time[k], L=dayLight(date);
     const hrs=D.H.filter(x=>x.t.startsWith(date)&&x.ms>=L.rise-1800000&&x.ms<=L.set);
-    const fut=hrs.filter(x=>x.ms>=now-3600000); if(!fut.length) continue;
-    let top=null; for(const x of fut) for(const s of SPOTS){ const e=evalHour(x,s); if(!top||e.score>top.r.score) top={r:e,h:x}; }
-    const win=fut.filter(x=>evalHour(x,top.r.spot).score>=top.r.score-0.1);
+    const top=bestWindow(date, now); if(!top) continue;
     const tomorrow = D.daily.time[D.daily.time.indexOf(today)+1];
     const lbl = date===today?"Hoy":date===tomorrow?"Mañana":new Date(L.rise).toLocaleDateString("es-AR",{weekday:"long",day:"numeric"});
     // hoy: el clima de AHORA (+ aviso si llueve más tarde); otros días: el que predomina con luz
@@ -598,7 +599,7 @@ function render(){
     card.innerHTML = `<div class="top"><span>${lbl}</span><span class="wxd">${icon}${Math.round(tmax)}°<span style="color:var(--dim)">/${Math.round(tmin)}°</span></span></div>
       ${top.r.score<0.1?`<div class="who" style="color:var(--dim)">Sin ola</div><div class="meta">máx ${(top.r.hb*1.2).toFixed(1)} m · viento ${compass(top.h.wd)} ${Math.round(top.h.ws)}</div>`
       :`<div class="who" style="color:${COLOR[top.r.spot][0]}">${NAME[top.r.spot]} <span style="font-weight:400;color:var(--muted);font-size:17px">${(top.r.hb*0.8).toFixed(1)}–${(top.r.hb*1.2).toFixed(1)} m</span></div>
-        <div class="meta"><span class="dots" style="display:inline-flex;vertical-align:middle;--c:${COLOR[top.r.spot][0]}">${dots(top.r.stars)}</span> &nbsp;${fmtT(win[0].ms)}–${fmtT(win[win.length-1].ms+3600000)} · ${compass(top.h.wd)} ${Math.round(top.h.ws)} km/h</div>`}
+        <div class="meta"><span class="dots" style="display:inline-flex;vertical-align:middle;--c:${COLOR[top.r.spot][0]}">${dots(top.r.stars)}</span> &nbsp;${fmtT(top.from)}–${fmtT(top.to)} · ${compass(top.h.wd)} ${Math.round(top.h.ws)} km/h</div>`}
       ${rainAt?`<div class="rainnote">☂ lluvia desde las ${fmtT(rainAt)}</div>`:""}
       ${rainAt?"":sparkSVG(hrs)}`;
     slot++;

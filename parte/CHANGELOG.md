@@ -2,6 +2,10 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude Code — "Próxima buena" y la tarjeta del día dicen lo mismo
+- Maiky vio "Próxima buena: martes 07:00 · 2.5 ★" y en la tarjeta del martes 4 ★. No era un dato inventado: eran dos cuentas distintas del modelo ("próxima buena" = la PRIMERA hora que llega a 2,5 ★; la tarjeta = la MEJOR hora del día).
+- Ahora hay una sola cuenta, `bestWindow()`: mejor hora del día con luz + franja continua alrededor (≤ 0,5 ★ de la mejor). La usan "Próxima buena" (primer día con alguna hora ≥ 2,5 ★), la tarjeta del día y "Franja buena". Con los datos del 27/09: las dos dicen martes 11:00–13:00 · Yacht · 4 ★.
+
 ## 2026-09-27 · Claude Code — diseño legible a 2 m + días interactivos
 - Pedido de Maiky: mal contraste ("todo muy azul"), datos importantes que hay que acercarse para ver; la tablet va como portarretratos y se tiene que leer a 2 m.
   - Tarjetas oscuras y neutras (casi opacas) en vez de vidrio azul; textos claros (muted .86, dim .64); cielo de día menos azul.
