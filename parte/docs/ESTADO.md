@@ -1,6 +1,6 @@
 # Estado del proyecto
 
-**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27 12:40 (Claude Code).
+**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27 14:00 (Claude Code).
 
 ## Hecho
 - Geometría real de Playa Grande (OSM) y tablas de exposición/viento por pico (`model/`).
@@ -10,6 +10,7 @@
 - Documentación y memoria compartida (este archivo, `CLAUDE.md`, `DECISIONES.md`, `CHANGELOG.md`).
 - **Tablet preparada por ADB** (27/09, Claude Code): diagnóstico, 14 apps de Google desactivadas + Opera Mini desinstalada, animaciones 0,5×, pantalla siempre prendida enchufada, 30 min a batería, brillo 50 %. Play Store actualiza solo por Wi-Fi. Después: WebView y Play Store actualizados, Chrome exento de ahorro de batería, voz de Google y Files desactivadas (3,1 GB libres tras reiniciar). Todo reversible: `docs/tablet/revertir.sh`.
 - **Fully Kiosk Browser** instalado (versión gratis): abre `https://ponkus.github.io/surfing/parte/` en pantalla completa y arranca solo al prender. La tablet mantiene PIN (Maiky): después de un reinicio hay que desbloquearla a mano. La depuración inalámbrica se apaga en cada reinicio (Android 11); el USB no sirve para ADB en esta tablet. Detalle y diagnóstico en `docs/tablet/`.
+- **Diseño v3 (27/09)**: legible a 2 m (tarjetas oscuras, tipografía grande), días tocables (el cuadro central muestra el día elegido; vuelve solo a "ahora" a los 90 s), clima del momento + aviso de lluvia, carga a prueba de cortes de Open-Meteo, arreglo del zoom en Fully. PRs #9–#11.
 - **Publicada** en `https://ponkus.github.io/surfing/parte/` (PR #4). Probada en la tablet: fluida, pero se pisaba dentro de Chrome → arreglado (encaje 1280×800 escalado + pantalla completa + app instalable), en PR #5.
 
 ## En curso
