@@ -96,7 +96,8 @@
   .hero.tight .chip{font-size:16px;padding:6px 12px 6px 9px}
   .hero.tight .nextwin{padding:8px 14px;font-size:17px}
   .hero.tight .sp{padding:8px 12px}
-  .hero.tight .sp .dial{width:80px;height:80px}
+  .hero.tight .sp{gap:2px}
+  .hero.tight .sp .hv{font-size:28px}
   .nextwin .alt{flex-basis:100%;font-size:15px;color:var(--dim)}
   .nextwin .alt b{color:var(--muted);font-weight:600}
   .day .altnote{font-size:14px;color:var(--dim)}
@@ -105,6 +106,18 @@
   .sp{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--glass2);border:1px solid var(--stroke);position:relative;overflow:hidden}
   .sp.win{border-color:color-mix(in srgb,var(--c) 60%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 30%,transparent) inset}
   .sp .dial{width:96px;height:96px;flex:none}
+  .sp{cursor:pointer;flex-direction:column;align-items:stretch;gap:4px}
+  .sp .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .sp .from{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .sp .from svg{width:26px;height:26px;flex:none}
+  .entra{display:flex;align-items:center;gap:10px;font-size:17px;color:var(--muted);margin-top:2px}
+  .entra .bar{flex:1;height:10px;border-radius:5px;background:rgba(255,255,255,.14);overflow:hidden}
+  .entra .bar i{display:block;height:100%;border-radius:5px;background:var(--c)}
+  .entra b{color:var(--text);font-size:20px;min-width:52px;text-align:right}
+  .sp .more{font-size:14px;color:var(--dim);white-space:nowrap}
+  .dialbig{width:300px;height:300px;display:block;margin:6px auto}
+  .legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:16px;color:var(--muted);margin-top:8px}
+  .legend .k{width:34px;height:14px;border-radius:4px}
   .sp .nm{font-size:18px;font-weight:700;color:var(--c);letter-spacing:1px}
   .sp .hv{font-size:32px;font-weight:700;margin:0;line-height:1.15}
   .sp .hv small{font-size:17px;color:var(--muted);font-weight:400}
@@ -249,6 +262,8 @@
     <div class="actions"><button class="btn ghost" id="expJson">Exportar</button><span style="flex:1"></span><button class="btn ghost" id="cancel">Cancelar</button><button class="btn primary" id="save">Guardar</button></div>
   </div>
 </div>
+<div class="modal" id="spotModal"><div class="sheet glass" style="width:min(560px,100%)"><div id="spotBody"></div>
+  <div class="actions"><button class="btn primary" id="spotClose">Cerrar</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -446,10 +461,26 @@ function gaugeSVG(stars, c1, c2){
 }
 const dots = s => Array.from({length:5},(_,i)=>`<i class="${s>=i+1?"on":s>=i+0.5?"half":""}"></i>`).join("");
 
+// flecha que apunta hacia donde VA el swell (viene de dir): la misma lectura que en la brújula
+const arrowIcon = dir => `<svg viewBox="0 0 24 24" style="transform:rotate(${(dir+180)%360}deg)"><circle cx="12" cy="12" r="11" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.25)"/><path d="M12 5v13M7 13l5 5 5-5" transform="rotate(180 12 12)" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+let spotT=null;
+function openSpot(spot, x, h, when){
+  const col=COLOR[spot][0], d=x.dom;
+  $("spotBody").innerHTML = `<h2 style="color:${col}">${NAME[spot]} · ${when}</h2>
+    <div class="when">${d?`Swell principal ${compass(d.d)} de ${d.p.toFixed(0)} s: le entra el ${Math.round(d.e*100)}%`:"Sin swell"} · viento ${compass(h.wd)} ${Math.round(h.ws)} km/h</div>
+    ${dialSVG(spot,x,h).replace('class="dial"','class="dialbig"')}
+    <div class="legend">
+      <span class="k" style="background:${col};opacity:.6"></span><span>Mancha: cuánto swell le entra desde cada dirección (con este período). Borde = entra entero; centro = lo tapa la escollera.</span>
+      <span class="k" style="background:rgba(255,255,255,.15)"></span><span>Gris: la tierra. El círculo chico marca la mitad (50%).</span>
+      <span class="k" style="background:#fff;height:4px"></span><span>Flecha blanca: el swell principal, desde donde viene.</span>
+      <span class="k" style="background:repeating-linear-gradient(90deg,rgba(255,255,255,.6) 0 5px,transparent 5px 9px);height:3px"></span><span>Flecha punteada: el viento, desde donde sopla. Arriba es el Norte.</span>
+    </div>`;
+  $("spotModal").classList.add("open"); clearTimeout(spotT); spotT=setTimeout(()=>$("spotModal").classList.remove("open"),60000);
+}
 /* dial: abanico de exposición del pico + flechas de swell y viento */
 function dialSVG(spot, r, h){
-  const cx=52, cy=52, R=40, col=COLOR[spot][0];
-  let pts=[]; for(let a=0;a<360;a+=6){ const e=expo(spot,a,8); pts.push([cx+R*e*Math.sin(rad(a)), cy-R*e*Math.cos(rad(a))]); }
+  const cx=52, cy=52, R=40, col=COLOR[spot][0], Tp=r.dom?r.dom.p:8;   // mismo período que el % del texto (antes: siempre 8 s)
+  let pts=[]; for(let a=0;a<360;a+=6){ const e=expo(spot,a,Tp); pts.push([cx+R*e*Math.sin(rad(a)), cy-R*e*Math.cos(rad(a))]); }
   const fan = "M"+pts.map(p=>p.map(v=>v.toFixed(1)).join(",")).join("L")+"Z";
   // tierra: semiplano al oeste de la costa (rumbo 15°)
   const cb=NORMAL-90, lx=Math.sin(rad(cb)), ly=-Math.cos(rad(cb)), wx=Math.sin(rad(NORMAL+180)), wy=-Math.cos(rad(NORMAL+180));
@@ -603,11 +634,14 @@ function render(){
   $("gauge").style.display = none?"none":"";
   $("gauge").innerHTML = gaugeSVG(r.stars, none?"#8aa3b8":COLOR[best][0], none?"#eef3f7":COLOR[best][1]);
   $("chips").innerHTML = chipsFor(r,h).filter(c=>!(none&&c.i===I.pump)).map(c=>`<div class="chip ${c.tone}">${c.i}<span>${c.t}</span></div>`).join("");
-  $("spots").innerHTML = SPOTS.map(s=>{ const x=R[s];
-    const why = x.detail.slice().sort((a,b)=>b.hb-a.hb).slice(0,1).map(p=>`${compass(p.d)} ${p.p.toFixed(0)}s → ${Math.round(p.e*100)}%`).join(" · ");
-    return `<div class="sp ${s===best&&!none?"win":""}" style="--c:${COLOR[s][0]}">${dialSVG(s,x,h)}
-      <div><div class="nm">${NAME[s].toUpperCase()}</div><div class="hv">${x.hb<0.15?"plano":`${(x.hb*0.8).toFixed(1)}–${(x.hb*1.2).toFixed(1)}<small> m</small>`}</div>
-      <div class="dots">${dots(x.stars)}</div><div class="why">${why}<br>${x.tq.txt}</div></div></div>`; }).join("");
+  // cada pico: altura, estrellas y "cuánto le entra" del swell principal (se lee de lejos); tocando, la brújula con el detalle
+  $("spots").innerHTML = SPOTS.map(s=>{ const x=R[s], d=x.dom, pct=d?Math.round(d.e*100):0;
+    return `<div class="sp ${s===best&&!none?"win":""}" style="--c:${COLOR[s][0]}" data-spot="${s}" role="button" tabindex="0">
+      <div class="row"><div class="nm">${NAME[s].toUpperCase()}</div>${d?`<div class="from">${arrowIcon(d.d)}${compass(d.d)} ${d.p.toFixed(0)}s</div>`:""}</div>
+      <div class="row"><div class="hv">${x.hb<0.15?"plano":`${(x.hb*0.8).toFixed(1)}–${(x.hb*1.2).toFixed(1)}<small> m</small>`}</div><div class="dots">${dots(x.stars)}</div></div>
+      <div class="entra">Le entra<div class="bar"><i style="width:${pct}%"></i></div><b>${pct}%</b></div>
+      <div class="row"><div class="why">${x.tq.txt}</div><span class="more">ver más ›</span></div></div>`; }).join("");
+  document.querySelectorAll(".sp").forEach(el=>el.onclick=e=>{ e.stopPropagation(); openSpot(el.dataset.spot, R[el.dataset.spot], h, isNow?"ahora":fmtT(h.ms)); });
 
   // marea
   const tMs=isNow?now:h.ms, ti=tideInfo(tMs);
@@ -776,6 +810,8 @@ function goFull(){
 // sin API de pantalla completa (iPhone) el botón no sirve: se esconde
 function syncFs(){ $("fsBtn").classList.toggle("hide", isFull() || !document.documentElement.requestFullscreen); setTimeout(fit,200); }
 addEventListener("resize",()=>$("fsBtn").classList.toggle("hide", isFull() || !document.documentElement.requestFullscreen));
+$("spotClose").onclick=()=>$("spotModal").classList.remove("open");
+$("spotModal").addEventListener("click",e=>{ if(e.target.id==="spotModal") $("spotModal").classList.remove("open"); });
 $("backNow").onclick=e=>{ e.stopPropagation(); pickDay(null); };
 $("fsBtn").onclick=e=>{ e.stopPropagation(); goFull(); };
 document.addEventListener("fullscreenchange",syncFs); syncFs();
