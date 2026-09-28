@@ -73,25 +73,28 @@ async def one(p, T, W=1280, H=800):
         await page.wait_for_timeout(600)
         cam_ok = await page.evaluate("""() => { const c=document.querySelector('#cams');
           const t=[...c.querySelectorAll('.tile .lbl')].map(x=>x.textContent);
-          const fr=[...c.querySelectorAll('.tile.lu iframe')].map(f=>f.getAttribute('src')||'');
-          return c.classList.contains('open') && t.join('|')==='Biología 1|Biología 2'
-            && fr.length===2 && fr.every(u=>u.startsWith('https://lineup.surf/spots/')); }""")
+          return c.classList.contains('open') && t.join('|')==='Biología|La Normandina'
+            && document.querySelectorAll('#camsGrid video').length===2; }""")
         await page.wait_for_timeout(1500)
         await page.screenshot(path=os.path.join(OUT, f"{tag}_camaras.png"))
         await page.click("#camsOne"); single = await page.evaluate("document.querySelector('#camsGrid').classList.contains('single')")
         await page.click("#cams .tabs [data-cs='Yacht']"); await page.wait_for_timeout(300)
-        yacht = await page.evaluate("[...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'")
-        await page.click("#grpED"); await page.wait_for_timeout(300)
-        propias = await page.evaluate("""() => [...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht'
-          && document.querySelectorAll('#camsGrid video').length===1 && !document.querySelector('#camsGrid iframe')
-          && document.querySelector('#camsGrid').classList.contains('single')""")
-        await page.click("#cams .tabs [data-cs='Biologia']"); await page.wait_for_timeout(300)
-        propias = propias and await page.evaluate("[...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Biología|La Normandina'")
-        await page.click("#grpLU"); await page.click("#cams .tabs [data-cs='Yacht']"); await page.wait_for_timeout(300)
+        yacht = await page.evaluate("""() => [...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht'
+          && document.querySelectorAll('#camsGrid video').length===1""")
+        await page.click("#grpLU"); await page.wait_for_timeout(300)
+        await page.screenshot(path=os.path.join(OUT, f"{tag}_camaras_lineup.png"))
+        lineup = await page.evaluate("""() => [...document.querySelectorAll('#cams .tile.lu .big')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'
+          && !document.querySelector('#camsGrid video')""")
+        async with page.expect_request(lambda r: r.url.startswith("https://lineup.surf/spots/") and r.url.endswith("el-yacht/camera1")) as req:
+            await page.click("#camsGrid .tile.lu[data-i='0']")
+        lineup = lineup and bool(await req.value)
+        await page.goto("file://" + os.path.abspath(APP)); await page.wait_for_timeout(1200)
+        await page.click("#spots .sp[data-spot='Yacht']"); await page.wait_for_timeout(300)
+        propias = True
         await page.click("#camsRate"); pre = await page.evaluate("document.querySelector('#modal').classList.contains('open') && document.querySelector('[data-k=spot] .sel')?.dataset.v==='Yacht' && document.querySelector('[data-k=src] .sel')?.dataset.v==='camara'")
         await page.click("#cancel"); await page.click("#camsBack")
-        closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video') && !document.querySelector('#camsGrid iframe')")
-        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("mis cámaras (estadodelmar)", propias), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
+        closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video')")
+        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("lineup abre su página", lineup), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
             if not okk: errs.append("cámaras: falla " + name)
         # volver a dejar el formulario de rating como al principio
         await page.evaluate("document.querySelectorAll('.opts:not([data-k=src]) .opt').forEach(x=>x.classList.remove('sel'))")
