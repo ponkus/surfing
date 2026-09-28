@@ -321,15 +321,16 @@ const CFG = {
   LITE: false,                                // true = sin blur ni animación pesada (tablets lentas). También ?lite en la URL
   SHEETS_URL: "",
   // Cámaras por pico, en dos grupos (botón "Lineup" / "Mis cámaras"; se ven de a 2 para no ahogar la tablet).
-  // LINEUP: sus videos solo se entregan a su propia web (CloudFront da 403 a cualquier otra, 28/09) y dentro de un marco
-  //   no llega la sesión de Maiky (probado en su Chrome logueado: pide registrarse). Por eso se abre SU página de la
-  //   cámara como página completa en Fully (ahí la sesión sí anda) y se vuelve con el botón atrás de Android.
+  // LINEUP: su CloudFront solo entrega el video a lineup.surf (403 a cualquier otra web). Se pasa por un proxy personal
+  //   de Maiky (Cloudflare Worker "olas-cams", ver docs/LINEUP_PROXY.md) que solo deja pasar estas 4 cámaras y solo con
+  //   la clave. La clave NO va en el código (Pages es público): se pasa en la URL de la tablet, ?lu=CLAVE.
   // PROPIAS (estadodelmar, las de surf.html): stream directo con el reproductor nativo (Android reproduce HLS solo).
-  CAMS: (()=>{ const LU="https://lineup.surf/spots/argentina/buenos-aires/mar-del-plata-playa-grande-", ED2="https://video2.estadodelmar.com.ar/mobile/";
+  LU_PROXY: "https://olas-cams.jlgrassi.workers.dev/",
+  CAMS: (()=>{ const ED2="https://video2.estadodelmar.com.ar/mobile/";
     return {
-      Biologia:{ lineup:[{n:"Biología 1", page:LU+"biologia/camera1"}, {n:"Biología 2", page:LU+"biologia/camera2"}],
+      Biologia:{ lineup:[{n:"Biología 1", s:"ar-bue-mardelplata-pg1-overwiew.stream"}, {n:"Biología 2", s:"ar-bue-mardelplataplayagrandebiologia.stream"}],
                  propias:[{n:"Biología", src:[ED2+"playagrande/index.m3u8"]}, {n:"La Normandina", src:[ED2+"lanormandina/index.m3u8"]}] },
-      Yacht:   { lineup:[{n:"Yacht 1", page:LU+"el-yacht/camera1"}, {n:"Yacht 2", page:LU+"el-yacht/camera2"}],
+      Yacht:   { lineup:[{n:"Yacht 1", s:"ar-bue-mardelplata-pg2-overwiew.stream"}, {n:"Yacht 2", s:"ar-bue-mardelplataplayagrandeelyacht.stream"}],
                  propias:[{n:"Yacht", src:[ED2+"yacht/index.m3u8"]}] }
                  // ROTA (28/09): https://video4.estadodelmar.com.ar/mobile/P.Grande/index.m3u8 → error 526 (certificado SSL vencido/mal en video4). Volver a sumarla cuando ande.
     }; })(),
@@ -337,6 +338,8 @@ const CFG = {
   CAMS_IDLE_MIN: 10                           // sin tocar nada, las cámaras se cierran solas (ahorran datos y batería)
 };
 if(location.search.includes("lite")) CFG.LITE = true;
+const LU_KEY = new URLSearchParams(location.search).get("lu") || "";     // clave del proxy de lineup (solo en la URL de la tablet)
+for(const sp in CFG.CAMS) CFG.CAMS[sp].lineup.forEach(c=>c.src = LU_KEY ? [CFG.LU_PROXY+LU_KEY+"/"+c.s+"/playlist.m3u8"] : []);
 // Horario personal por URL: ?horario=0630-1200 (la tablet de Maiky). Sin parámetro la app muestra todo el día.
 CFG.HORARIO = (()=>{ const m=/[?&]horario=(\d{1,2}):?(\d{2})-(\d{1,2}):?(\d{2})/.exec(location.search); if(!m) return null;
   const a=+m[1]*60+ +m[2], b=+m[3]*60+ +m[4]; return b>a?{a,b}:null; })();
@@ -930,7 +933,7 @@ $("reloadBtn").onclick=e=>{ e.stopPropagation(); location.reload(); };
 
 /* ===================== CÁMARAS ===================== */
 var LAST_BEST = null;                                        // pico recomendado ahora (lo usa el botón de cámaras de arriba)
-const CAMS = {open:false, spot:"Biologia", grp:"propias", mode:"split", focus:0, idleT:null, hls:null};
+const CAMS = {open:false, spot:"Biologia", grp:(LU_KEY?"lineup":"propias"), mode:"split", focus:0, idleT:null, hls:null};
 const hasNativeHls = () => { const v=document.createElement("video"); return !!v.canPlayType("application/vnd.apple.mpegurl"); };
 function loadHlsJs(){                                         // solo para navegadores sin HLS nativo (compu). La tablet no lo usa.
   if(window.Hls) return Promise.resolve();
@@ -951,27 +954,26 @@ function playTile(t, cam, i=0, viaJs=false){
   else v.src=url;
   v.play().catch(()=>{});
 }
-function openLU(cam){ closeCams(); location.href=cam.page; }   // página completa de lineup; se vuelve con "atrás"
 function renderCams(){
-  const g=$("camsGrid"), lu=CAMS.grp==="lineup", cams=CFG.CAMS[CAMS.spot][CAMS.grp];
+  const g=$("camsGrid"), lu=CAMS.grp==="lineup" && !LU_KEY, cams=CFG.CAMS[CAMS.spot][CAMS.grp];
   document.querySelectorAll("#cams .tabs .cbtn").forEach(b=>b.classList.toggle("on", b.dataset.cs===CAMS.spot));
   document.querySelectorAll("#cams .grp .cbtn").forEach(b=>b.classList.toggle("on", b.dataset.g===CAMS.grp));
   if(CAMS.focus>=cams.length) CAMS.focus=0;
   $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
   g.querySelectorAll(".tile").forEach(stopTile);
   g.className="grid"+(!lu&&(CAMS.mode==="single"||cams.length<2)?" single":"");
-  g.innerHTML = cams.map((c,i)=>`<div class="tile ${lu?"lu ":""}${i===CAMS.focus?"focus":""}" data-i="${i}">${lu?`<div class="big" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="go">Abrir en lineup ›</div><div class="sub">Se abre la cámara de lineup. Para volver al parte, tocá atrás.</div></div>`:`<video muted autoplay playsinline preload="auto"></video>
+  g.innerHTML = cams.map((c,i)=>`<div class="tile ${lu?"lu ":""}${i===CAMS.focus?"focus":""}" data-i="${i}">${lu?`<div class="big" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="sub">Falta la clave de lineup en la dirección de la app (?lu=…). Ver docs/LINEUP_PROXY.md</div></div>`:`<video muted autoplay playsinline preload="auto"></video>
     <div class="lbl" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="hint">${CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"}</div><div class="st"></div></div>`}`).join("");
   g.querySelectorAll(".tile").forEach(t=>{
     const c=cams[+t.dataset.i];
-    if(lu){ t.onclick=()=>openLU(c); return; }
+    if(lu) return;
     t.onclick=()=>{ if(t.classList.contains("fail")) return playTile(t,c);
       if(CAMS.mode==="split"){ CAMS.mode="single"; CAMS.focus=+t.dataset.i; } else CAMS.mode="split"; setLayout(); };
     if(!hasNativeHls()) loadHlsJs().then(()=>playTile(t,c,0,true)).catch(()=>playTile(t,c)); else playTile(t,c);
   });
 }
 function setLayout(){                                         // cambia dividida/una sin recargar los videos
-  const g=$("camsGrid"); g.classList.toggle("single", CAMS.grp!=="lineup" && (CAMS.mode==="single" || g.children.length<2));
+  const g=$("camsGrid"); g.classList.toggle("single", !g.querySelector(".tile.lu") && (CAMS.mode==="single" || g.children.length<2));
   g.querySelectorAll(".tile:not(.lu)").forEach(t=>{ t.classList.toggle("focus", +t.dataset.i===CAMS.focus); t.querySelector(".hint").textContent=CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"; });
   $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
 }

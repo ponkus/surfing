@@ -54,7 +54,7 @@ async def one(p, T, W=1280, H=800):
                         headers={"access-control-allow-origin": "*"})
     await ctx.route("**/*open-meteo.com/**", route)
     await ctx.route("**/fonts.googleapis.com/**", lambda r: r.abort())
-    for pat in ("**/*cloudfront.net/**", "**/*estadodelmar.com.ar/**", "**/cdn.jsdelivr.net/**", "**/*lineup.surf/**"):
+    for pat in ("**/*cloudfront.net/**", "**/*estadodelmar.com.ar/**", "**/cdn.jsdelivr.net/**", "**/*lineup.surf/**", "**/*workers.dev/**"):
         await ctx.route(pat, lambda r: r.abort())                        # cámaras: sin red en el test
     await page.goto("file://" + os.path.abspath(APP))
     await page.wait_for_timeout(2500)
@@ -85,16 +85,16 @@ async def one(p, T, W=1280, H=800):
         await page.screenshot(path=os.path.join(OUT, f"{tag}_camaras_lineup.png"))
         lineup = await page.evaluate("""() => [...document.querySelectorAll('#cams .tile.lu .big')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'
           && !document.querySelector('#camsGrid video')""")
-        async with page.expect_request(lambda r: r.url.startswith("https://lineup.surf/spots/") and r.url.endswith("el-yacht/camera1")) as req:
-            await page.click("#camsGrid .tile.lu[data-i='0']")
-        lineup = lineup and bool(await req.value)
-        await page.goto("file://" + os.path.abspath(APP)); await page.wait_for_timeout(1200)
-        await page.click("#spots .sp[data-spot='Yacht']"); await page.wait_for_timeout(300)
-        propias = True
+        # con la clave en la URL (?lu=), lineup abre primero y en video, por el proxy
+        async with page.expect_request(lambda r: r.url == "https://olas-cams.jlgrassi.workers.dev/CLAVETEST/ar-bue-mardelplata-pg2-overwiew.stream/playlist.m3u8") as req:
+            await page.goto("file://" + os.path.abspath(APP) + "?lu=CLAVETEST"); await page.wait_for_timeout(1200)
+            await page.click("#spots .sp[data-spot='Yacht']"); await page.wait_for_timeout(500)
+        lineup = lineup and bool(await req.value) and await page.evaluate("""() => [...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'
+          && document.querySelectorAll('#camsGrid video').length===2 && document.querySelector('#grpLU').classList.contains('on')""")
         await page.click("#camsRate"); pre = await page.evaluate("document.querySelector('#modal').classList.contains('open') && document.querySelector('[data-k=spot] .sel')?.dataset.v==='Yacht' && document.querySelector('[data-k=src] .sel')?.dataset.v==='camara'")
         await page.click("#cancel"); await page.click("#camsBack")
         closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video')")
-        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("lineup abre su página", lineup), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
+        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("lineup: aviso sin clave y video por el proxy con clave", lineup), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
             if not okk: errs.append("cámaras: falla " + name)
         # volver a dejar el formulario de rating como al principio
         await page.evaluate("document.querySelectorAll('.opts:not([data-k=src]) .opt').forEach(x=>x.classList.remove('sel'))")

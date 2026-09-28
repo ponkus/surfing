@@ -70,7 +70,7 @@ Tests requieren `pip install playwright` y Chromium. Las capturas quedan en `par
 ## Reglas técnicas de `parte/`
 
 - **Un solo archivo HTML, sin npm ni bundlers ni frameworks.** Vanilla JS. Dependencias externas: Google Fonts (Outfit) y, solo en navegadores sin HLS nativo, hls.js de jsdelivr (cámaras). Tiene que andar si no cargan.
-- **Cámaras** (`CFG.CAMS`): por pico, dos grupos. *Mis cámaras* (estadodelmar, stream directo, se cargan solo con la vista abierta). *Lineup*: link a su página completa (su CDN da 403 afuera y en marco no llega la sesión; no pedirles habilitar el dominio). Es uso personal de Maiky.
+- **Cámaras** (`CFG.CAMS`): por pico, dos grupos. *Mis cámaras* (estadodelmar, stream directo, se cargan solo con la vista abierta). *Lineup*: video por el proxy propio `olas-cams` (su CDN da 403 fuera de lineup.surf; ver `parte/docs/LINEUP_PROXY.md`; la clave va en `?lu=`, nunca en el repo). Es uso personal de Maiky.
 - **Datos**: Open-Meteo (gratis, sin API key, permite CORS desde el navegador). Marine API + Forecast API. No usar APIs pagas ni scrapear Surfline (va contra sus términos).
 - **Hardware objetivo**: tablet TJD MT-1025, Android 11, 10.1", apaisada 1280×800, siempre prendida, app instalada (PWA en pantalla completa). Es modesta: animación limitada a ~30 fps, pausa cuando la pestaña está oculta, modo `?lite` (sin blur, 15 fps). No agregar nada pesado (videos de fondo, librerías grandes).
 - **Encaje en pantalla**: la app se diseña a **1280×800** y `fit()` la escala (`transform: scale`) para cualquier pantalla. Diseñar y medir siempre en 1280×800. En celular vertical (`body.mobile`) no se escala: se apila. Los tests fallan si un bloque pisa a otro en 5 tamaños de pantalla.
