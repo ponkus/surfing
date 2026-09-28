@@ -92,7 +92,7 @@ adb shell settings put system screen_off_timeout 1800000    # 30 min si está a 
 - Brillo: automático o ~50 % (menos calor, menos consumo).
 
 ## 5. Después (siguiente etapa, no en esta sesión salvo que Maiky lo pida)
-- **Cámaras de lineup (28/09)**: en Fully → Settings → Web Content Settings → activar **Enable Third-Party Cookies**. Después, en la app: Cámaras → Lineup → **Tocar** → iniciar sesión con mail y contraseña (Google no anda en Fully) → cerrar el aviso de "Protege tu cuenta" con "Activar más tarde" → Tocar de nuevo para volver al recorte.
+- **Cámaras de lineup (28/09)**: en la app → Cámaras → **Lineup** → **Abrir en lineup** → iniciar sesión con mail y contraseña (Google no anda en Fully) una sola vez → "Activar más tarde" si aparece el aviso de doble factor. Para volver al parte: botón **atrás** de Android. Las cookies de terceros de Fully ya no hacen falta.
 - **Hecho (27/09)**: Fully Kiosk instalado. Start URL: `https://ponkus.github.io/surfing/parte/?horario=0630-1200`. Launch on Boot ✓, Keep Screen On ✗ (manda Android), exento de ahorro de batería.
 - Instalar **Fully Kiosk Browser** (Play Store) → URL `https://ponkus.github.io/surfing/parte/`, pantalla completa, arrancar al prender.
   (Chrome en esta tablet **no ofrece "Agregar a pantalla principal"**: el launcher no soporta accesos directos. Probado 27/09/2026.)

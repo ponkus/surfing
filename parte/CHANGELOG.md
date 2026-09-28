@@ -2,6 +2,13 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-28 · Claude app — lineup se abre como página completa (se descarta el marco)
+- Maiky: en la tablet, "Tocar" no dejaba iniciar sesión (el toque hacía pantalla completa).
+- Problema de fondo: probado con la app publicada en el Chrome de Maiky, **logueado en lineup**: dentro del marco lineup pide registrarse. El navegador no le manda la sesión a una página de lineup metida en otra web, así que el marco no podía andar ni arreglando el botón.
+- Ahora: "Lineup" muestra una tarjeta por cámara con **Abrir en lineup ›**, que abre su página completa en Fully (ahí la sesión sí anda). Se vuelve al parte con **atrás** de Android.
+- Las cámaras abren primero en **Mis cámaras** (video en vivo); Lineup a un toque. Se sacaron el marco, el recorte (`LU_CROP`) y el botón Tocar.
+- Maiky no quiere pedirle a lineup que habilite su dominio (no corresponde). Queda así.
+
 ## 2026-09-28 · Claude app — cámaras: lineup en marco + mis cámaras (estadodelmar)
 - Maiky: en la tablet no se veía ninguna de lineup y de las suyas solo una.
 - **Lineup**: los links directos (`d1pn38aa7xeaye.cloudfront.net/.../playlist.m3u8`) son los correctos (verificados en su web con la sesión de Maiky), pero CloudFront responde **403** a cualquier pedido que no venga de lineup.surf (probado sin referer y desde la app). Solución: mostrar **su página de cada cámara en un marco**, recortada al video (`CFG.LU_CROP`, medido a 800 px de ancho con sesión premium). Probado en Chrome con la sesión de Maiky: las cámaras se ven en vivo. Botón **Tocar** para usar la página (iniciar sesión, cerrar avisos).
