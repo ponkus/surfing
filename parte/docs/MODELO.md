@@ -1,6 +1,6 @@
 # Modelo físico — cómo se pasa del pronóstico mar adentro a la ola en cada pico
 
-Versión del modelo en la app: **v2** (`pred.model` en cada rating).
+Versión del modelo en la app: **v3** (28/09/2026) (`pred.model` en cada rating).
 
 ## 1. Geometría (medida, no supuesta)
 Fuente: OpenStreetMap (Overpass), 26/09/2026. Coordenadas en `model/geo.py`.
@@ -35,10 +35,14 @@ Fracción del viento que ensucia el pico según el agua libre que tiene a barlov
 - N, NNE, NE → Biología reparado.
 - SO, O, NO → offshore, limpio en los dos. (Maiky dijo "NO repara Biología"; el modelo lo ve como offshore en ambos.)
 - ENE, E, ESE → onshore en ambos.
-Puntaje: offshore → 1 (baja si >30 km/h); si no, `1 − vel × factor × max(onshore, 0.35) / 22`.
+Puntaje: offshore → 1 (baja si >30 km/h); si no, `1 − v × reparo × max(onshore, 0.35) / 22`.
+**v3**: `v = máx(sostenido, 0.65 × ráfaga)` y `reparo = factor + (1 − factor) × 0.6 × clamp((v − 15)/25, 0, 1)`:
+la escollera tapa el picado de cerca, pero con 30–40 km/h el mar revuelto entra igual (caso 28/09: NE 21, ráfagas 44 → Biología ya no "reparado").
 
 ## 4. Altura en rompiente
-Por cada componente (swell 1, swell 2, mar de viento ×0.6): `Hb = 0.39 · g^0.2 · (T · H0²)^0.4` (Komar & Gaillard 1973) × exposición.
+Por cada componente (swell 1, swell 2, mar de viento): `Hb = 0.39 · g^0.2 · (T · H0²)^0.4` (Komar & Gaillard 1973) × exposición × `sizeT(T)`.
+**v3** `sizeT(T) = clamp(0.5 + 0.125·(T − 5), 0.5, 1)`: la ola de 5 s o menos rinde la mitad como ola surfeable (se rompe desordenada, espuma), la de 9 s o más entera.
+Antes era mar de viento ×0.6 y swell ×1, que sobreestimaba días de temporal (28/09: 0.9–1.4 m pronosticado, mucho menos real). Provisorio: calibrar con ratings.
 Se combinan: `Hb = sqrt(Σ Hb_i²) × SIZE_CAL[pico]`. Se muestra como rango `0.8·Hb – 1.2·Hb`.
 
 ## 5. Marea (γ sobre el banco) — conocimiento local de Maiky
@@ -56,13 +60,19 @@ Modelo: dentro de ±45 min de pleamar/bajamar y con Hb 0.5–1.6 m → puntaje �
 **Puede ser memoria selectiva**: se valida comparando ratings cerca del cambio de marea vs el resto.
 
 ## 7. Puntaje final (0–5)
-`tamaño(Hb) × viento × picado × marea(γ) × bombeo × (1.15 si T ≥ 9 s)` → ×5.
+`tamaño(Hb) × viento × picado × marea(γ) × período × bombeo × (1.15 si T ≥ 9 s)` → ×5.
+**Período (v3)**: `Tm = Σ(H²·T)/Σ(H²)` sobre los 3 componentes (período medio pesado por energía). Factor: 5 s 0.35 · 6 s 0.55 · 7 s 0.75 · 8 s 0.9 · 9 s+ 1 (lineal entre medio).
+Mar de 5–6 s = temporal / mar de viento: aunque tenga altura, no hay ola ordenada.
 Tamaño para bodyboard: 0 bajo 0.45 m, sube hasta 0.9 m, ideal 0.9–2.0 m, baja arriba de 2.5 m.
 
 ## 8. Validación hecha
 - 26/09/2026 20 h, con los 3 swells de Surfline (S 0.9 m 8 s · NE 0.5 m 8 s · SE 0.2 m 10 s):
   modelo **Biología 0.62 m / Yacht 0.67 m** vs Surfline **Biología 0.3–0.6 / Yacht 0.6–0.9**. Mismo ganador.
 - Probable **sobreestimación con mar corto (5–6 s)**: para el martes 29/09 el modelo da Yacht 1.1–1.6 m y Surfline 0.6–1.1 m. Candidato a corregir con `SIZE_CAL` o con ratings.
+
+- **28/09/2026 09 h** (Maiky por cámara: mar destruido, no apto). v2: Biología 2.5★ / Yacht 1★, 0.9–1.4 m. **v3: 0–0.5★, 0.6–0.9 m.** Queda como test de regresión en `tests/run.py`.
+
+**Referencia**: el puntaje que vale es el de la app (JS). El `evaluate` de `model.py` es simplificado (un solo swell) y sirve para diagnóstico; la geometría y las tablas sí son las de Python.
 
 ## 9. Calibración (plan)
 Cada rating guarda pronóstico + predicción. Con ~20–30 ratings: ajustar `SIZE_CAL` y `D_BAR` por pico, tolerancia al viento,
