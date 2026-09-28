@@ -2,6 +2,9 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-28 · Maiky — cámaras validadas en la tablet
+- Lineup se ve bien: unos segundos la primera vez y después fluida. Sin RESTART.
+
 ## 2026-09-28 · Claude app — cámaras livianas para la tablet
 - Maiky: en la tablet lineup tardaba en enganchar y en pantalla completa se colgó (RESTART de Fully). En la compu andaba bien.
 - Causa 1: en "Una" la otra cámara seguía reproduciéndose escondida → dos videos 1080p decodificando en un Allwinner con Android Go. Ahora la escondida se corta y se reanuda al volver.
