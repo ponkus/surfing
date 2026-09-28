@@ -2,6 +2,13 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-28 · Claude app — cámaras: lineup en marco + mis cámaras (estadodelmar)
+- Maiky: en la tablet no se veía ninguna de lineup y de las suyas solo una.
+- **Lineup**: los links directos (`d1pn38aa7xeaye.cloudfront.net/.../playlist.m3u8`) son los correctos (verificados en su web con la sesión de Maiky), pero CloudFront responde **403** a cualquier pedido que no venga de lineup.surf (probado sin referer y desde la app). Solución: mostrar **su página de cada cámara en un marco**, recortada al video (`CFG.LU_CROP`, medido a 800 px de ancho con sesión premium). Probado en Chrome con la sesión de Maiky: las cámaras se ven en vivo. Botón **Tocar** para usar la página (iniciar sesión, cerrar avisos).
+- **Mis cámaras** (estadodelmar): `video2` playagrande, lanormandina y yacht andan (200). **`video4 …/P.Grande` está rota** (error 526 de Cloudflare: certificado SSL mal en `video4`); se sacó de la app hasta que ande. Biología: Biología + La Normandina; Yacht: Yacht.
+- Vista de cámaras con dos grupos: **Lineup** / **Mis cámaras** (de a 2 videos, para no ahogar la tablet). Una sola cámara se ve a pantalla completa.
+- Tests: se agregó el grupo "mis cámaras" y que las de lineup abran su página.
+
 ## 2026-09-28 · Claude app — modelo v3: el mar de temporal ya no da estrellas
 - Maiky, con cámaras: hoy 09 h la app marcaba Biología 2.5★ / Yacht 1★ y 0.9–1.4 m, pero el mar estaba destruido, sin ese tamaño y no apto.
 - Causa (con los datos reales del 28/09): swell ESE 0.84 m a **5.7 s** + mar de viento 0.88 m a 3.6 s + NE 21 km/h con **ráfagas de 44**. La v2 trataba una ola de 5–6 s casi como un swell, ignoraba las ráfagas y daba a Biología por "reparado" con 44 km/h.

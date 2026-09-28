@@ -46,14 +46,15 @@ async def one(p, T, W=1280, H=800):
     page = await ctx.new_page()
     errs = []
     page.on("pageerror", lambda e: errs.append(f"PAGEERROR: {e}"))
-    page.on("console", lambda m: errs.append(m.text) if m.type == "error" and "Failed to load resource" not in m.text else None)
+    page.on("console", lambda m: errs.append(m.text) if m.type == "error" and "Failed to load resource" not in m.text
+            and "permissions policy violation" not in m.text else None)  # aviso de Chrome por los marcos de lineup bloqueados en el test
     async def route(r):
         f = "marine.json" if "marine-api" in r.request.url else "weather.json"
         await r.fulfill(path=os.path.join(HERE, "fixtures", f), content_type="application/json",
                         headers={"access-control-allow-origin": "*"})
     await ctx.route("**/*open-meteo.com/**", route)
     await ctx.route("**/fonts.googleapis.com/**", lambda r: r.abort())
-    for pat in ("**/*cloudfront.net/**", "**/*estadodelmar.com.ar/**", "**/cdn.jsdelivr.net/**"):
+    for pat in ("**/*cloudfront.net/**", "**/*estadodelmar.com.ar/**", "**/cdn.jsdelivr.net/**", "**/*lineup.surf/**"):
         await ctx.route(pat, lambda r: r.abort())                        # cámaras: sin red en el test
     await page.goto("file://" + os.path.abspath(APP))
     await page.wait_for_timeout(2500)
@@ -72,16 +73,25 @@ async def one(p, T, W=1280, H=800):
         await page.wait_for_timeout(600)
         cam_ok = await page.evaluate("""() => { const c=document.querySelector('#cams');
           const t=[...c.querySelectorAll('.tile .lbl')].map(x=>x.textContent);
-          return c.classList.contains('open') && t.join('|')==='Biología 1|Biología 2'; }""")
+          const fr=[...c.querySelectorAll('.tile.lu iframe')].map(f=>f.getAttribute('src')||'');
+          return c.classList.contains('open') && t.join('|')==='Biología 1|Biología 2'
+            && fr.length===2 && fr.every(u=>u.startsWith('https://lineup.surf/spots/')); }""")
         await page.wait_for_timeout(1500)
         await page.screenshot(path=os.path.join(OUT, f"{tag}_camaras.png"))
         await page.click("#camsOne"); single = await page.evaluate("document.querySelector('#camsGrid').classList.contains('single')")
         await page.click("#cams .tabs [data-cs='Yacht']"); await page.wait_for_timeout(300)
         yacht = await page.evaluate("[...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'")
+        await page.click("#grpED"); await page.wait_for_timeout(300)
+        propias = await page.evaluate("""() => [...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht'
+          && document.querySelectorAll('#camsGrid video').length===1 && !document.querySelector('#camsGrid iframe')
+          && document.querySelector('#camsGrid').classList.contains('single')""")
+        await page.click("#cams .tabs [data-cs='Biologia']"); await page.wait_for_timeout(300)
+        propias = propias and await page.evaluate("[...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Biología|La Normandina'")
+        await page.click("#grpLU"); await page.click("#cams .tabs [data-cs='Yacht']"); await page.wait_for_timeout(300)
         await page.click("#camsRate"); pre = await page.evaluate("document.querySelector('#modal').classList.contains('open') && document.querySelector('[data-k=spot] .sel')?.dataset.v==='Yacht' && document.querySelector('[data-k=src] .sel')?.dataset.v==='camara'")
         await page.click("#cancel"); await page.click("#camsBack")
-        closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video')")
-        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
+        closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video') && !document.querySelector('#camsGrid iframe')")
+        for name, okk in [("abre las 2 cámaras de Biología", cam_ok), ("modo una sola", single), ("cambia a Yacht", yacht), ("mis cámaras (estadodelmar)", propias), ("calificar desde cámaras", pre), ("cierra y corta los videos", closed)]:
             if not okk: errs.append("cámaras: falla " + name)
         # volver a dejar el formulario de rating como al principio
         await page.evaluate("document.querySelectorAll('.opts:not([data-k=src]) .opt').forEach(x=>x.classList.remove('sel'))")

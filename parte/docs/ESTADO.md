@@ -1,6 +1,6 @@
 # Estado del proyecto
 
-**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-28 (Claude app).
+**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-28 (Claude app, cámaras).
 
 ## Hecho
 - Geometría real de Playa Grande (OSM) y tablas de exposición/viento por pico (`model/`).
@@ -24,7 +24,7 @@
 ## Siguiente (en orden)
 1. Ratings a **Google Sheet** (Apps Script Web App → `CFG.SHEETS_URL`), para no depender de la tablet.
 2. **Marea oficial del SHN** (Mar del Plata): reemplazar/corregir `TIDE_OFFSET_MIN`.
-3. **Cámaras** (hecho en código, PR "cámaras por pico"): **validar en la tablet** que reproduzcan (lineup primero, estadodelmar de respaldo). Si lineup no anda desde la app, ver alternativas en DECISIONES.md (27/09, cámaras).
+3. **Cámaras** (28/09, rehecho): lineup se muestra como su página en un marco recortado (su CloudFront da 403 fuera de lineup.surf); mis cámaras = estadodelmar `video2`. **Falta en la tablet**: en Fully, activar cookies de terceros e iniciar sesión en lineup (botón Tocar). Pendiente: `video4 …/P.Grande` rota (526, certificado SSL) — volver a sumarla cuando ande. Mejor solución a futuro: que lineup habilite `ponkus.github.io` en su CloudFront (Maiky los conoce) y volver al stream directo.
 4. Calibración: script que lea los ratings exportados y ajuste `SIZE_CAL`, `D_BAR`, bombeo (después de ~20 ratings).
 5. Protección de batería: ESP32 + relé + MacroDroid.
 6. Fase 2: portar a ESP32-S3 (JC3248W535).

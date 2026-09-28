@@ -130,6 +130,11 @@
   .cams .tabs .cbtn.on.Biologia{border-color:var(--bio);background:rgba(47,224,200,.16)}
   .cams .tabs .cbtn.on.Yacht{border-color:var(--yacht);background:rgba(255,143,107,.16)}
   .cams .rate2{background:linear-gradient(135deg,#2fe0c8,#3aa0ff);color:#04202a;border:0}
+  .cams .grp{display:flex;gap:6px}
+  .tile .lubox{position:absolute;overflow:hidden;background:#000}
+  .tile .lubox iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#000}
+  .tile .shield{position:absolute;inset:0}
+  .grid.touch .tile .shield{display:none}
   .cams .grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;min-height:0}
   .cams .grid.single{grid-template-columns:1fr}
   .cams .grid.single .tile:not(.focus){display:none}
@@ -293,6 +298,8 @@
   <div class="cbar">
     <button class="cbtn" id="camsBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>Parte</button>
     <div class="tabs"><button class="cbtn Biologia" data-cs="Biologia">Biología</button><button class="cbtn Yacht" data-cs="Yacht">Yacht</button></div>
+    <div class="grp"><button class="cbtn" id="grpLU" data-g="lineup">Lineup</button><button class="cbtn" id="grpED" data-g="propias">Mis cámaras</button></div>
+    <button class="cbtn" id="camsTouch" title="Tocar la página de lineup (iniciar sesión, cerrar avisos)">Tocar</button>
     <button class="cbtn" id="camsSplit" title="Pantalla dividida"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="8.5" height="14" rx="1.5"/><rect x="13" y="5" width="8.5" height="14" rx="1.5"/></svg>Dividida</button>
     <button class="cbtn" id="camsOne" title="Una sola"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/></svg>Una</button>
     <button class="cbtn rate2" id="camsRate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Calificar</button>
@@ -314,16 +321,20 @@ const CFG = {
   REFRESH_MIN: 30,
   LITE: false,                                // true = sin blur ni animación pesada (tablets lentas). También ?lite en la URL
   SHEETS_URL: "",
-  // Cámaras por pico: 2 por pico. Cada una prueba sus fuentes en orden (si una no conecta en CAM_TIMEOUT s, pasa a la siguiente).
-  // lineup.surf (favoritos de Maiky) primero; estadodelmar (las de surf.html) de respaldo. Reproductor nativo del navegador
-  // (Android/WebView reproduce HLS solo, como surf.html); en navegadores sin HLS nativo se usa hls.js.
-  CAMS: (()=>{ const LU="https://d1pn38aa7xeaye.cloudfront.net/ArgentinaCameras/", ED2="https://video2.estadodelmar.com.ar/mobile/", ED4="https://video4.estadodelmar.com.ar/mobile/";
+  // Cámaras por pico, en dos grupos (botón "Lineup" / "Mis cámaras"; se ven de a 2 para no ahogar la tablet).
+  // LINEUP: sus videos solo se entregan a su propia web (CloudFront responde 403 a cualquier otra: probado 28/09),
+  //   así que se muestra SU página de la cámara en un marco, recortada al video. Requiere sesión de Maiky
+  //   iniciada en lineup.surf dentro de Fully y cookies de terceros activadas. Recorte medido en su página a 800 px de ancho.
+  // PROPIAS (estadodelmar, las de surf.html): stream directo con el reproductor nativo (Android reproduce HLS solo).
+  CAMS: (()=>{ const LU="https://lineup.surf/spots/argentina/buenos-aires/mar-del-plata-playa-grande-", ED2="https://video2.estadodelmar.com.ar/mobile/";
     return {
-      Biologia:[{n:"Biología 1", src:[LU+"ar-bue-mardelplata-pg1-overwiew.stream/playlist.m3u8", ED2+"playagrande/index.m3u8"]},
-                {n:"Biología 2", src:[LU+"ar-bue-mardelplataplayagrandebiologia.stream/playlist.m3u8", ED4+"P.Grande/index.m3u8"]}],
-      Yacht:   [{n:"Yacht 1",    src:[LU+"ar-bue-mardelplata-pg2-overwiew.stream/playlist.m3u8", ED2+"yacht/index.m3u8"]},
-                {n:"Yacht 2",    src:[LU+"ar-bue-mardelplataplayagrandeelyacht.stream/playlist.m3u8", ED2+"yacht/index.m3u8"]}]
+      Biologia:{ lineup:[{n:"Biología 1", page:LU+"biologia/camera1"}, {n:"Biología 2", page:LU+"biologia/camera2"}],
+                 propias:[{n:"Biología", src:[ED2+"playagrande/index.m3u8"]}, {n:"La Normandina", src:[ED2+"lanormandina/index.m3u8"]}] },
+      Yacht:   { lineup:[{n:"Yacht 1", page:LU+"el-yacht/camera1"}, {n:"Yacht 2", page:LU+"el-yacht/camera2"}],
+                 propias:[{n:"Yacht", src:[ED2+"yacht/index.m3u8"]}] }
+                 // ROTA (28/09): https://video4.estadodelmar.com.ar/mobile/P.Grande/index.m3u8 → error 526 (certificado SSL vencido/mal en video4). Volver a sumarla cuando ande.
     }; })(),
+  LU_CROP: {w:800, h:600, x:12, y:117, vw:770, vh:433},  // marco de lineup: ancho de página y rectángulo del video dentro
   CAM_TIMEOUT: 12,
   CAMS_IDLE_MIN: 10                           // sin tocar nada, las cámaras se cierran solas (ahorran datos y batería)
 };
@@ -921,14 +932,14 @@ $("reloadBtn").onclick=e=>{ e.stopPropagation(); location.reload(); };
 
 /* ===================== CÁMARAS ===================== */
 var LAST_BEST = null;                                        // pico recomendado ahora (lo usa el botón de cámaras de arriba)
-const CAMS = {open:false, spot:"Biologia", mode:"split", focus:0, idleT:null, hls:null};
+const CAMS = {open:false, spot:"Biologia", grp:"lineup", mode:"split", focus:0, idleT:null, hls:null, touch:false};
 const hasNativeHls = () => { const v=document.createElement("video"); return !!v.canPlayType("application/vnd.apple.mpegurl"); };
 function loadHlsJs(){                                         // solo para navegadores sin HLS nativo (compu). La tablet no lo usa.
   if(window.Hls) return Promise.resolve();
   if(CAMS.hls) return CAMS.hls;
   return CAMS.hls = new Promise((ok,ko)=>{ const s=document.createElement("script"); s.src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"; s.onload=ok; s.onerror=ko; document.head.appendChild(s); });
 }
-function stopTile(t){ const v=t.querySelector("video"); clearTimeout(t._to); if(t._hls){ try{t._hls.destroy();}catch(e){} t._hls=null; }
+function stopTile(t){ const f=t.querySelector("iframe"); if(f){ clearTimeout(t._to); f.src="about:blank"; return; } const v=t.querySelector("video"); clearTimeout(t._to); if(t._hls){ try{t._hls.destroy();}catch(e){} t._hls=null; }
   if(v){ v.pause(); v.removeAttribute("src"); v.load(); } }
 function playTile(t, cam, i=0, viaJs=false){
   stopTile(t); const v=t.querySelector("video"), st=t.querySelector(".st");
@@ -942,25 +953,45 @@ function playTile(t, cam, i=0, viaJs=false){
   else v.src=url;
   v.play().catch(()=>{});
 }
+function fitLU(t){                                            // recorta la página de lineup al video y lo centra en la tarjeta
+  const c=CFG.LU_CROP, b=t.querySelector(".lubox"), f=t.querySelector("iframe"); if(!b) return;
+  const W=t.clientWidth, H=t.clientHeight; if(!W||!H) return;
+  let s, bw, bh, ox, oy;
+  if(CAMS.touch){ s=Math.min(W/c.w, H/c.h); bw=c.w*s; bh=c.h*s; ox=0; oy=0; }          // modo "Tocar": la página entera
+  else { s=Math.min(W/c.vw, H/c.vh); bw=c.vw*s; bh=c.vh*s; ox=c.x*s; oy=c.y*s; }
+  Object.assign(b.style,{width:bw+"px",height:bh+"px",left:(W-bw)/2+"px",top:(H-bh)/2+"px"});
+  Object.assign(f.style,{width:c.w+"px",height:c.h+"px",transform:`translate(${-ox}px,${-oy}px) scale(${s})`});
+}
+function playLU(t, cam){
+  const f=t.querySelector("iframe"), st=t.querySelector(".st");
+  t.classList.remove("fail"); t.classList.add("wait"); st.textContent="Abriendo lineup…";
+  f.onload=()=>{ if(f.src==="about:blank") return; clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove("wait"), 2500); };
+  f.src=cam.page; fitLU(t);
+}
 function renderCams(){
-  const g=$("camsGrid"), cams=CFG.CAMS[CAMS.spot];
+  const g=$("camsGrid"), lu=CAMS.grp==="lineup", cams=CFG.CAMS[CAMS.spot][CAMS.grp];
   document.querySelectorAll("#cams .tabs .cbtn").forEach(b=>b.classList.toggle("on", b.dataset.cs===CAMS.spot));
+  document.querySelectorAll("#cams .grp .cbtn").forEach(b=>b.classList.toggle("on", b.dataset.g===CAMS.grp));
+  $("camsTouch").style.display=lu?"":"none"; $("camsTouch").classList.toggle("on", CAMS.touch);
+  if(CAMS.focus>=cams.length) CAMS.focus=0;
   $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
   g.querySelectorAll(".tile").forEach(stopTile);
-  g.className="grid"+(CAMS.mode==="single"?" single":"");
-  g.innerHTML = cams.map((c,i)=>`<div class="tile ${i===CAMS.focus?"focus":""}" data-i="${i}"><video muted autoplay playsinline preload="auto"></video>
+  g.className="grid"+(CAMS.mode==="single"||cams.length<2?" single":"")+(lu&&CAMS.touch?" touch":"");
+  g.innerHTML = cams.map((c,i)=>`<div class="tile ${lu?"lu ":""}${i===CAMS.focus?"focus":""}" data-i="${i}">${lu?`<div class="lubox"><iframe allow="autoplay; fullscreen" title="${c.n}"></iframe></div><div class="shield"></div>`:`<video muted autoplay playsinline preload="auto"></video>`}
     <div class="lbl" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="hint">${CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"}</div><div class="st"></div></div>`).join("");
   g.querySelectorAll(".tile").forEach(t=>{
     const c=cams[+t.dataset.i];
-    t.onclick=()=>{ if(t.classList.contains("fail")) return playTile(t,c);
+    t.onclick=()=>{ if(t.classList.contains("fail")) return lu?playLU(t,c):playTile(t,c);
       if(CAMS.mode==="split"){ CAMS.mode="single"; CAMS.focus=+t.dataset.i; } else CAMS.mode="split"; setLayout(); };
+    if(lu) return playLU(t,c);
     if(!hasNativeHls()) loadHlsJs().then(()=>playTile(t,c,0,true)).catch(()=>playTile(t,c)); else playTile(t,c);
   });
 }
 function setLayout(){                                         // cambia dividida/una sin recargar los videos
-  const g=$("camsGrid"); g.classList.toggle("single", CAMS.mode==="single");
+  const g=$("camsGrid"); g.classList.toggle("single", CAMS.mode==="single" || g.children.length<2);
   g.querySelectorAll(".tile").forEach(t=>{ t.classList.toggle("focus", +t.dataset.i===CAMS.focus); t.querySelector(".hint").textContent=CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"; });
   $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
+  requestAnimationFrame(()=>g.querySelectorAll(".tile.lu").forEach(fitLU));
 }
 function camsIdle(){ clearTimeout(CAMS.idleT); CAMS.idleT=setTimeout(closeCams, CFG.CAMS_IDLE_MIN*60000); }
 function openCams(spot){ CAMS.spot=spot||CAMS.spot; CAMS.mode="split"; CAMS.focus=0; CAMS.open=true; $("cams").classList.add("open"); renderCams(); camsIdle(); }
@@ -970,6 +1001,9 @@ $("camsTop").onclick=e=>{ e.stopPropagation(); openCams(LAST_BEST||"Biologia"); 
 document.querySelectorAll("#cams .tabs .cbtn").forEach(b=>b.onclick=()=>{ if(CAMS.spot!==b.dataset.cs){ CAMS.spot=b.dataset.cs; CAMS.focus=0; renderCams(); } });
 $("camsSplit").onclick=()=>{ CAMS.mode="split"; setLayout(); };
 $("camsOne").onclick=()=>{ CAMS.mode="single"; setLayout(); };
+document.querySelectorAll("#cams .grp .cbtn").forEach(b=>b.onclick=()=>{ if(CAMS.grp!==b.dataset.g){ CAMS.grp=b.dataset.g; CAMS.focus=0; CAMS.touch=false; renderCams(); } });
+$("camsTouch").onclick=()=>{ CAMS.touch=!CAMS.touch; $("camsTouch").classList.toggle("on", CAMS.touch); $("camsGrid").classList.toggle("touch", CAMS.touch); $("camsGrid").querySelectorAll(".tile.lu").forEach(fitLU); };
+window.addEventListener("resize",()=>{ if(CAMS.open) $("camsGrid").querySelectorAll(".tile.lu").forEach(fitLU); });
 $("cams").addEventListener("pointerdown", camsIdle);
 $("camsRate").onclick=()=>openRate(CAMS.spot,"camara");
 document.addEventListener("visibilitychange",()=>{ if(!CAMS.open) return; $("camsGrid").querySelectorAll("video").forEach(v=>document.hidden?v.pause():v.play().catch(()=>{})); });
