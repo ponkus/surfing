@@ -77,7 +77,12 @@ async def one(p, T, W=1280, H=800):
             && document.querySelectorAll('#camsGrid video').length===2; }""")
         await page.wait_for_timeout(1500)
         await page.screenshot(path=os.path.join(OUT, f"{tag}_camaras.png"))
-        await page.click("#camsOne"); single = await page.evaluate("document.querySelector('#camsGrid').classList.contains('single')")
+        await page.click("#camsOne"); single = await page.evaluate("""() => document.querySelector('#camsGrid').classList.contains('single')
+          && [...document.querySelectorAll('#camsGrid .tile')].map(t=>t._off?'off':'on').join()==='on,off'""")   # la escondida se corta
+        # sin red en el test la cámara queda "sin señal" (y tocarla reintenta): se simula el toque sobre una que anda
+        await page.evaluate("(()=>{ const t=document.querySelector('#camsGrid .tile.focus'); t.classList.remove('fail'); t.click(); })()"); await page.wait_for_timeout(200)
+        single = single and await page.evaluate("""() => document.querySelector('#camsGrid .tile.focus').dataset.i==='1'
+          && [...document.querySelectorAll('#camsGrid .tile')].map(t=>t._off?'off':'on').join()==='off,on'""")
         await page.click("#cams .tabs [data-cs='Yacht']"); await page.wait_for_timeout(300)
         yacht = await page.evaluate("""() => [...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht'
           && document.querySelectorAll('#camsGrid video').length===1""")
@@ -90,7 +95,9 @@ async def one(p, T, W=1280, H=800):
             await page.goto("file://" + os.path.abspath(APP) + "?lu=CLAVETEST"); await page.wait_for_timeout(1200)
             await page.click("#spots .sp[data-spot='Yacht']"); await page.wait_for_timeout(500)
         lineup = lineup and bool(await req.value) and await page.evaluate("""() => [...document.querySelectorAll('#cams .tile .lbl')].map(x=>x.textContent).join('|')==='Yacht 1|Yacht 2'
-          && document.querySelectorAll('#camsGrid video').length===2 && document.querySelector('#grpLU').classList.contains('on')""")
+          && document.querySelectorAll('#camsGrid video').length===2 && document.querySelector('#grpLU').classList.contains('on')
+          && document.querySelector('#camsGrid').classList.contains('single')
+          && [...document.querySelectorAll('#camsGrid .tile')].map(t=>t._off?'off':'on').join()==='on,off'""")   # lineup 1080p: de a una
         await page.click("#camsRate"); pre = await page.evaluate("document.querySelector('#modal').classList.contains('open') && document.querySelector('[data-k=spot] .sel')?.dataset.v==='Yacht' && document.querySelector('[data-k=src] .sel')?.dataset.v==='camara'")
         await page.click("#cancel"); await page.click("#camsBack")
         closed = await page.evaluate("!document.querySelector('#cams').classList.contains('open') && !document.querySelector('#camsGrid video')")

@@ -334,7 +334,7 @@ const CFG = {
                  propias:[{n:"Yacht", src:[ED2+"yacht/index.m3u8"]}] }
                  // ROTA (28/09): https://video4.estadodelmar.com.ar/mobile/P.Grande/index.m3u8 → error 526 (certificado SSL vencido/mal en video4). Volver a sumarla cuando ande.
     }; })(),
-  CAM_TIMEOUT: 12,
+  CAM_TIMEOUT: 25,                            // lineup manda pedazos de 10 s: con 12 s se daba por caída antes de arrancar
   CAMS_IDLE_MIN: 10                           // sin tocar nada, las cámaras se cierran solas (ahorran datos y batería)
 };
 if(location.search.includes("lite")) CFG.LITE = true;
@@ -963,29 +963,37 @@ function renderCams(){
   g.querySelectorAll(".tile").forEach(stopTile);
   g.className="grid"+(!lu&&(CAMS.mode==="single"||cams.length<2)?" single":"");
   g.innerHTML = cams.map((c,i)=>`<div class="tile ${lu?"lu ":""}${i===CAMS.focus?"focus":""}" data-i="${i}">${lu?`<div class="big" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="sub">Falta la clave de lineup en la dirección de la app (?lu=…). Ver docs/LINEUP_PROXY.md</div></div>`:`<video muted autoplay playsinline preload="auto"></video>
-    <div class="lbl" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="hint">${CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"}</div><div class="st"></div></div>`}`).join("");
+    <div class="lbl" style="color:${COLOR[CAMS.spot][0]}">${c.n}</div><div class="hint">${CAMS.mode==="split"?"tocá para agrandar":(cams.length>1?"tocá para ver la otra":"")}</div><div class="st"></div></div>`}`).join("");
   g.querySelectorAll(".tile").forEach(t=>{
-    const c=cams[+t.dataset.i];
+    const c=cams[+t.dataset.i]; t._cam=c;
     if(lu) return;
     t.onclick=()=>{ if(t.classList.contains("fail")) return playTile(t,c);
-      if(CAMS.mode==="split"){ CAMS.mode="single"; CAMS.focus=+t.dataset.i; } else CAMS.mode="split"; setLayout(); };
-    if(!hasNativeHls()) loadHlsJs().then(()=>playTile(t,c,0,true)).catch(()=>playTile(t,c)); else playTile(t,c);
+      if(CAMS.mode==="split"){ CAMS.mode="single"; CAMS.focus=+t.dataset.i; } else CAMS.focus=(CAMS.focus+1)%cams.length; setLayout(); };
+    if(CAMS.mode==="single" && +t.dataset.i!==CAMS.focus){ t._off=true; return; }   // en "una" solo se carga la que se ve
+    startTile(t,c);
   });
 }
+function startTile(t,c){ t._off=false; if(!hasNativeHls()) loadHlsJs().then(()=>playTile(t,c,0,true)).catch(()=>playTile(t,c)); else playTile(t,c); }
 function setLayout(){                                         // cambia dividida/una sin recargar los videos
   const g=$("camsGrid"); g.classList.toggle("single", !g.querySelector(".tile.lu") && (CAMS.mode==="single" || g.children.length<2));
-  g.querySelectorAll(".tile:not(.lu)").forEach(t=>{ t.classList.toggle("focus", +t.dataset.i===CAMS.focus); t.querySelector(".hint").textContent=CAMS.mode==="split"?"tocá para agrandar":"tocá para ver las dos"; });
+  const n=g.querySelectorAll(".tile:not(.lu)").length;
+  g.querySelectorAll(".tile:not(.lu)").forEach(t=>{ const vis=CAMS.mode==="split" || +t.dataset.i===CAMS.focus;
+    t.classList.toggle("focus", +t.dataset.i===CAMS.focus);
+    t.querySelector(".hint").textContent = CAMS.mode==="split" ? "tocá para agrandar" : (n>1?"tocá para ver la otra":"");
+    // la cámara escondida se CORTA (antes seguía decodificando: con 1080p la tablet se colgaba)
+    if(!vis && !t._off){ stopTile(t); t._off=true; t.classList.remove("wait","fail"); }
+    else if(vis && (t._off || !t.querySelector("video").getAttribute("src") && !t._hls) && t._cam) startTile(t,t._cam); });
   $("camsSplit").classList.toggle("on", CAMS.mode==="split"); $("camsOne").classList.toggle("on", CAMS.mode==="single");
 }
 function camsIdle(){ clearTimeout(CAMS.idleT); CAMS.idleT=setTimeout(closeCams, CFG.CAMS_IDLE_MIN*60000); }
-function openCams(spot){ CAMS.spot=spot||CAMS.spot; CAMS.mode="split"; CAMS.focus=0; CAMS.open=true; $("cams").classList.add("open"); renderCams(); camsIdle(); }
+function openCams(spot){ CAMS.spot=spot||CAMS.spot; CAMS.mode=CAMS.grp==="lineup"?"single":"split"; CAMS.focus=0; CAMS.open=true; $("cams").classList.add("open"); renderCams(); camsIdle(); }
 function closeCams(){ CAMS.open=false; clearTimeout(CAMS.idleT); $("camsGrid").querySelectorAll(".tile").forEach(stopTile); $("camsGrid").innerHTML=""; $("cams").classList.remove("open"); }
 $("camsBack").onclick=closeCams;
 $("camsTop").onclick=e=>{ e.stopPropagation(); openCams(LAST_BEST||"Biologia"); };
 document.querySelectorAll("#cams .tabs .cbtn").forEach(b=>b.onclick=()=>{ if(CAMS.spot!==b.dataset.cs){ CAMS.spot=b.dataset.cs; CAMS.focus=0; renderCams(); } });
 $("camsSplit").onclick=()=>{ CAMS.mode="split"; setLayout(); };
 $("camsOne").onclick=()=>{ CAMS.mode="single"; setLayout(); };
-document.querySelectorAll("#cams .grp .cbtn").forEach(b=>b.onclick=()=>{ if(CAMS.grp!==b.dataset.g){ CAMS.grp=b.dataset.g; CAMS.focus=0; renderCams(); } });
+document.querySelectorAll("#cams .grp .cbtn").forEach(b=>b.onclick=()=>{ if(CAMS.grp!==b.dataset.g){ CAMS.grp=b.dataset.g; CAMS.focus=0; CAMS.mode=CAMS.grp==="lineup"?"single":"split"; renderCams(); } });
 $("cams").addEventListener("pointerdown", camsIdle);
 $("camsRate").onclick=()=>openRate(CAMS.spot,"camara");
 document.addEventListener("visibilitychange",()=>{ if(!CAMS.open) return; $("camsGrid").querySelectorAll("video").forEach(v=>document.hidden?v.pause():v.play().catch(()=>{})); });

@@ -2,6 +2,12 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-28 · Claude app — cámaras livianas para la tablet
+- Maiky: en la tablet lineup tardaba en enganchar y en pantalla completa se colgó (RESTART de Fully). En la compu andaba bien.
+- Causa 1: en "Una" la otra cámara seguía reproduciéndose escondida → dos videos 1080p decodificando en un Allwinner con Android Go. Ahora la escondida se corta y se reanuda al volver.
+- Causa 2: lineup manda pedazos de 10 s y la app daba la cámara por caída a los 12 s. `CAM_TIMEOUT` 12 → 25.
+- Lineup (1080p, una sola calidad) abre **de a una**; tocar el video pasa a la otra. "Dividida" sigue en el botón (puede ser mucho para la tablet).
+
 ## 2026-09-28 · Claude app — lineup en video dentro de la app, por proxy propio
 - Maiky descartó la página completa (abría el home, 3 toques hasta la cámara, sin forma de volver).
 - Proxy personal en Cloudflare Worker (`olas-cams`, cuenta de Maiky): pide el video a lineup como lineup.surf. Probado: las 4 cámaras dan 200 (playlist, chunklist, segmentos). Detalle en `docs/LINEUP_PROXY.md`.
