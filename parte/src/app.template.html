@@ -225,7 +225,7 @@
 <div class="app">
   <header class="bar">
     <div class="brand"><svg viewBox="0 0 32 32" fill="none"><path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 7-3 3.5 3 5 3" stroke="#2fe0c8" stroke-width="2.4" stroke-linecap="round"/><path d="M3 26c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 7-3 3.5 3 5 3" stroke="#3aa0ff" stroke-width="2.4" stroke-linecap="round" opacity=".6"/><path d="M9 14c0-5 4-9 9-9-3 2-4 5-3 8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>PLAYA GRANDE · MAR DEL PLATA</div>
-    <div class="right"><button class="fs camsbtn" id="camsTop" title="Cámaras" aria-label="Cámaras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5z"/></svg></button><div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="date"></div></div>
+    <div class="right"><button class="fs camsbtn" id="reloadBtn" title="Actualizar" aria-label="Actualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button><button class="fs camsbtn" id="camsTop" title="Cámaras" aria-label="Cámaras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="M15.5 10.5l6-3.5v10l-6-3.5z"/></svg></button><div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="date"></div></div>
       <button class="fs" id="fsBtn" title="Pantalla completa" aria-label="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
   </header>
 
@@ -333,6 +333,7 @@ CFG.HORARIO = (()=>{ const m=/[?&]horario=(\d{1,2}):?(\d{2})-(\d{1,2}):?(\d{2})/
   const a=+m[1]*60+ +m[2], b=+m[3]*60+ +m[4]; return b>a?{a,b}:null; })();
 if(CFG.LITE) document.body.classList.add("lite");
 const T = __TABLES__;
+const BUILD = "__BUILD__";                              // lo pone build.py; se compara con version.json
 const SPOTS = ["Biologia","Yacht"];
 const NAME = {Biologia:"Biología", Yacht:"Yacht"};
 const COLOR = {Biologia:["#2fe0c8","#7af0ff"], Yacht:["#ff8f6b","#ffc36b"]};
@@ -887,6 +888,22 @@ function renderRateMeta(){
   const rated=R.some(r=>new Date(r.ts).toDateString()===today);
   $("rateMeta").textContent = rated?`${n} ratings · confianza ${n<10?"baja":n<40?"media":"alta"}`:`hoy sin calificar · ${n} en total`;
 }
+/* ===================== ACTUALIZACIÓN DE LA APP ===================== */
+// Fully deja la app abierta días: sin esto, una versión nueva publicada nunca llega a la tablet.
+// Cada 5 min (y al volver a primer plano) mira version.json; si cambió, recarga, salvo con cámaras o un formulario abiertos.
+function busy(){ return (typeof CAMS!=="undefined" && CAMS.open) || !!document.querySelector(".modal.open"); }
+async function checkUpdate(){
+  if(location.protocol!=="https:") return;                 // en los tests (file://) no aplica
+  try{
+    const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return;
+    const v=await r.json();
+    if(v.build && v.build!==BUILD){ if(busy()) return setTimeout(checkUpdate,60000); location.reload(); }
+  }catch(e){}
+}
+setInterval(checkUpdate, 5*60000);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkUpdate(); });
+$("reloadBtn").onclick=e=>{ e.stopPropagation(); location.reload(); };
+
 /* ===================== CÁMARAS ===================== */
 var LAST_BEST = null;                                        // pico recomendado ahora (lo usa el botón de cámaras de arriba)
 const CAMS = {open:false, spot:"Biologia", mode:"split", focus:0, idleT:null, hls:null};
