@@ -24,7 +24,7 @@
 ## Siguiente (en orden)
 1. Ratings a **Google Sheet** (Apps Script Web App → `CFG.SHEETS_URL`), para no depender de la tablet.
 2. **Marea oficial del SHN** (Mar del Plata): reemplazar/corregir `TIDE_OFFSET_MIN`.
-3. **Cámaras** (28/09): lineup por proxy propio (`docs/LINEUP_PROXY.md`), mis cámaras = estadodelmar `video2`. **Falta en la tablet**: agregar `&lu=<CLAVE>` a la URL de inicio de Fully. Pendiente: `video4 …/P.Grande` rota (526, certificado SSL).
+3. ~~Cámaras~~ **Hecho y validado en la tablet (28/09, Maiky)**: lineup por proxy propio (`docs/LINEUP_PROXY.md`), de a una, tarda unos segundos la primera vez y después fluida; mis cámaras = estadodelmar `video2`. Pendiente menor: `video4 …/P.Grande` rota (526, certificado SSL) — volver a sumarla cuando ande.
 4. Calibración: script que lea los ratings exportados y ajuste `SIZE_CAL`, `D_BAR`, bombeo (después de ~20 ratings).
 5. Protección de batería: ESP32 + relé + MacroDroid.
 6. Fase 2: portar a ESP32-S3 (JC3248W535).
