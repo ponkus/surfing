@@ -2,6 +2,11 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-27 · Claude app — la app se actualiza sola + botón ↻
+- Maiky no veía las cámaras en la tablet: Fully deja la app abierta y solo se refrescaban los datos, nunca el código.
+- `build.py` calcula una versión (hash) y la escribe en la app y en `version.json`. La app mira `version.json` cada 5 min y al volver a primer plano; si hay versión nueva, se recarga sola (nunca con cámaras o un formulario abiertos: espera 1 min y reintenta).
+- Botón **↻ Actualizar** arriba, al lado del de cámaras.
+
 ## 2026-09-27 · Claude app — cámaras por pico
 - Pedido de Maiky: al tocar un pico, ver sus dos cámaras, en pantalla dividida o una sola en grande.
 - **Tocar la tarjeta de Biología o Yacht abre sus 2 cámaras** (pantalla dividida). Tocar una → grande; tocar de nuevo → las dos. Pestañas Biología / Yacht, botones "Dividida" / "Una", "‹ Parte" para volver. Botón de cámara arriba (al lado del reloj) abre las del pico recomendado.

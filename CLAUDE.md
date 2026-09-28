@@ -35,6 +35,7 @@ Si no se actualizan estos archivos, la próxima instancia de Claude trabaja a ci
 parte/
   index.html              ← GENERADO. Lo que publica Pages y abre la tablet. NO editar a mano.
   manifest.webmanifest    ← app instalable (pantalla completa, apaisada)
+  version.json            ← GENERADO por build.py: versión publicada; la app lo mira cada 5 min y se recarga sola si cambió
   sw.js                   ← service worker (red primero, copia offline). Subir CACHE ("pg-vN") si cambia la lista de archivos
   icon-192.png, icon-512.png
   build.py                ← arma index.html = src/app.template.html + model/tables.json
