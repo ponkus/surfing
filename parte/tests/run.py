@@ -61,6 +61,11 @@ async def one(p, T, W=1280, H=800):
     errs += await page.evaluate(OVERLAP_JS)
     await page.screenshot(path=os.path.join(OUT, f"{tag}.png"))
     hero = await page.inner_text("#spotname"); h = await page.inner_text("#height")
+    # regresión modelo v3: 28/09 09:00 fue mar de temporal (período 5–6 s, NE con ráfagas 44), no apto → ≤1★ en los dos picos
+    if W == 1280 and H == 800 and T.startswith("2026-09-28T09:00"):
+        st = await page.evaluate("""() => { const h=D.H.find(x=>x.t.startsWith('2026-09-28T09:00'));
+          return ['Biologia','Yacht'].map(s=>evalHour(h,s).stars); }""")
+        if max(st) > 1: errs.append(f"modelo: 28/09 09:00 da {st}★ y ese día no era apto (máx 1★)")
     # vista de cámaras (los videos se bloquean en el test: se verifica la interfaz, no la señal)
     if W == 1280 and H == 800 and T == TIMES[-1]:
         await page.click("#spots .sp[data-spot='Biologia']")

@@ -62,6 +62,10 @@ def local_wind_factor(spot, wdir):
 def breaking_height(H0, T):
     return 0.39 * G ** 0.2 * (T * H0 ** 2) ** 0.4
 
+def size_t(T):
+    """v3: fracción del tamaño que llega como ola surfeable según el período (5 s o menos → 0.5, 9 s o más → 1)."""
+    return min(1.0, max(0.5, 0.5 + 0.125 * ((T or 0) - 5)))
+
 # ---------- 4. Puntaje ----------
 def size_score(hb):          # bodyboard: arranca a 0.5 m, ideal 0.9–2.0 m, se cierra arriba de 2.5
     if hb < 0.45: return 0.0
@@ -69,12 +73,37 @@ def size_score(hb):          # bodyboard: arranca a 0.5 m, ideal 0.9–2.0 m, se
     if hb <= 2.0: return 1.0
     return max(0.3, 1 - (hb - 2.0) / 1.5)
 
-def wind_score(spot, spd, wdir):
+def wind_eff(spd, gust=None):
+    """v3: viento efectivo = el mayor entre el sostenido y 65 % de la ráfaga."""
+    return max(spd or 0, 0.65 * (gust or 0))
+
+def shelter_factor(spot, wdir, spd_eff):
+    """v3: el reparo de la escollera se pierde con viento fuerte (tapa el picado de cerca, no el mar que viene de afuera)."""
+    wf = local_wind_factor(spot, wdir)
+    return wf + (1 - wf) * 0.6 * min(1.0, max(0.0, (spd_eff - 15) / 25))
+
+def wind_score(spot, spd, wdir, gust=None):
     on = math.cos(math.radians(angdiff(wdir, NORMAL)))       # +1 onshore puro, -1 offshore puro
+    v = wind_eff(spd, gust)
     if on <= -0.3:                                            # offshore / side-off
-        return 1.0 if spd < 30 else max(0.5, 1 - (spd - 30) / 40)
-    eff = spd * local_wind_factor(spot, wdir) * max(on, 0.35)
+        return 1.0 if v < 30 else max(0.5, 1 - (v - 30) / 40)
+    eff = v * shelter_factor(spot, wdir, v) * max(on, 0.35)
     return max(0.0, 1 - eff / 22)
+
+def period_q(tm):
+    """v3: calidad según el período medio del mar (pesado por energía). 5 s = mar de temporal, 9 s+ = swell de fondo."""
+    pts = [(5, .35), (6, .55), (7, .75), (8, .9), (9, 1.0)]
+    if tm <= 5: return .35
+    if tm >= 9: return 1.0
+    for (a, qa), (b, qb) in zip(pts, pts[1:]):
+        if tm <= b:
+            return qa + (qb - qa) * (tm - a) / (b - a)
+    return 1.0
+
+def mean_period(parts):
+    """parts = [(H, T), ...] incluyendo el mar de viento a altura completa."""
+    e = sum(h * h for h, t in parts)
+    return sum(h * h * t for h, t in parts) / e if e else 0.0
 
 def tide_score(level, lo, hi):
     if hi - lo < 0.1: return 1.0
@@ -85,10 +114,11 @@ def evaluate(hour, lo, hi):
     out = {}
     for spot in SPOTS:
         ex = exposure(spot, hour["sw_dir"], spread_for(hour["sw_t"]))
-        hb = breaking_height(hour["sw_h"], hour["sw_t"]) * ex
+        hb = breaking_height(hour["sw_h"], hour["sw_t"]) * ex * size_t(hour["sw_t"])
         chop = hour["ww_h"] * exposure(spot, hour["w_dir"]) if angdiff(hour["w_dir"], NORMAL) < 90 else 0
-        s = size_score(hb) * wind_score(spot, hour["w_spd"], hour["w_dir"]) \
-            * max(0.3, 1 - chop / 0.8) * tide_score(hour["tide"], lo, hi)
+        tm = mean_period([(hour["sw_h"], hour["sw_t"]), (hour["ww_h"], hour.get("ww_t", 3.5))])
+        s = size_score(hb) * wind_score(spot, hour["w_spd"], hour["w_dir"], hour.get("w_gust")) \
+            * max(0.3, 1 - chop / 0.8) * tide_score(hour["tide"], lo, hi) * period_q(tm)
         if hour["sw_t"] >= 9: s = min(1.0, s * 1.15)
         out[spot] = {"hb": hb, "exp": ex, "score": round(5 * s, 1),
                      "lw": local_wind_factor(spot, hour["w_dir"])}

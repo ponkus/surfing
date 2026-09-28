@@ -388,11 +388,22 @@ const spreadFor = Tp => Tp<8?"45":Tp<11?"30":"20";
 const expo = (spot,dir,Tp) => T.exp[spot][spreadFor(Tp)][Math.round(((dir%360)+360)%360)%360];
 const windF = (spot,dir) => T.wind[spot][Math.round(((dir%360)+360)%360)%360];
 function sizeScore(hb){ if(hb<0.45) return 0; if(hb<0.9) return (hb-0.45)/0.45; if(hb<=2.0) return 1; return Math.max(0.3,1-(hb-2)/1.5); }
-function windScore(spot,spd,dir){
-  const on = Math.cos(rad(angdiff(dir,NORMAL)));
-  if(on<=-0.3) return spd<30?1:Math.max(0.5,1-(spd-30)/40);
-  return Math.max(0,1-spd*windF(spot,dir)*Math.max(on,0.35)/22);
+// v3: las ráfagas cuentan (viento efectivo = el mayor entre el sostenido y 65 % de la ráfaga) y el reparo de la escollera
+// se pierde con viento fuerte: tapa el picado de cerca, no el mar que ya viene armado de afuera (28/09/2026: NE 21 con
+// ráfagas de 44 daba Biología "reparado" y 2,5 ★ con el mar destruido).
+const windEff = (spd,gust) => Math.max(spd||0, 0.65*(gust||0));
+function shelterF(spot,dir,spdEff){ const wf=windF(spot,dir); return wf+(1-wf)*0.6*clamp((spdEff-15)/25,0,1); }
+function windScore(spot,spd,dir,gust){
+  const on = Math.cos(rad(angdiff(dir,NORMAL))), v = windEff(spd,gust);
+  if(on<=-0.3) return v<30?1:Math.max(0.5,1-(v-30)/40);
+  return Math.max(0,1-v*shelterF(spot,dir,v)*Math.max(on,0.35)/22);
 }
+// v3: calidad según el período medio del mar (todas las componentes, pesadas por energía). Con 5–6 s no hay swell
+// de fondo: es mar de temporal, corto y desordenado, aunque la altura dé "linda".
+// v3: fracción del tamaño que llega como ola surfeable según el período (5 s o menos → 0.5, 9 s o más → 1)
+const sizeT = T => clamp(0.5+0.125*((T||0)-5),0.5,1);
+function periodQ(Tm){ const P=[[5,.35],[6,.55],[7,.75],[8,.9],[9,1]]; if(Tm<=5) return .35; if(Tm>=9) return 1;
+  for(let i=1;i<P.length;i++) if(Tm<=P[i][0]){ const [a,qa]=P[i-1],[b,qb]=P[i]; return qa+(qb-qa)*(Tm-a)/(b-a); } return 1; }
 function tideQ(g){
   if(g>1.05) return {q:Math.max(0.35,1-(g-1.05)*0.8), txt:"poca agua", tone:"bad"};
   if(g>=0.7) return {q:1, txt:"rompe en el banco", tone:"good"};
@@ -467,33 +478,37 @@ function tideInfo(ms){
 function evalHour(h, spot){
   let sum=0, dom=null, domv=-1; const detail=[];
   for(const p of h.parts){
-    const w=p.k==="viento"?0.6:1, e=expo(spot,p.d,p.p), hb=breakH(p.h,p.p)*e*w;
+    const w=sizeT(p.p), e=expo(spot,p.d,p.p), hb=breakH(p.h,p.p)*e*w;   // v3: mar corto rinde menos ola surfeable (antes: mar de viento ×0.6, swell ×1)
     sum+=hb*hb; detail.push({...p,e,hb}); if(hb>domv){domv=hb;dom={...p,e};}
   }
   const hb=Math.sqrt(sum)*CFG.SIZE_CAL[spot], Tp=dom?dom.p:0, ti=tideInfo(h.ms);
   const g=hb/Math.max(0.2,CFG.D_BAR[spot]+ti.y), tq=tideQ(g);
   const chop=angdiff(h.ww.d,NORMAL)<90?h.ww.h*expo(spot,h.ww.d,4):0;
-  const ws=windScore(spot,h.ws,h.wd);
-  let s=sizeScore(hb)*ws*Math.max(0.3,1-chop/0.8)*tq.q, bombeo=false;
+  const ws=windScore(spot,h.ws,h.wd,h.wg);
+  let E=0, ET=0; for(const p of h.parts){ const e2=p.h*p.h; E+=e2; ET+=e2*p.p; }
+  const Tm=E>0?ET/E:0, qT=periodQ(Tm);                     // período medio del mar y su factor de calidad
+  let s=sizeScore(hb)*ws*Math.max(0.3,1-chop/0.8)*tq.q*qT, bombeo=false;
   if(ti.near&&Math.abs(ti.near.dm)<=CFG.BOMBEO_MIN&&hb>=0.5&&hb<=1.6){ bombeo=true; s*=1+(Tp>=9?0.15:0.07)*(spot==="Yacht"?1.3:1); }
   if(Tp>=9) s*=1.15;
   s=clamp(s,0,1);
-  return {spot,hb,stars:Math.round(s*10)/2,score:s,g,tq,ws,dom,detail,bombeo,ti,chop,sz:sizeScore(hb)};
+  return {spot,hb,stars:Math.round(s*10)/2,score:s,g,tq,ws,dom,detail,bombeo,ti,chop,sz:sizeScore(hb),Tm,qT};
 }
 // por qué no se puede: el factor que más limita en el modelo (en vez de un "sin ola" que no siempre es cierto)
 function whyNot(r){
   if(r.hb<0.15) return "Plano";
-  const f=[{k:"Muy chico",v:r.sz},{k:"Movido",v:Math.min(r.ws,Math.max(0.3,1-r.chop/0.8))},{k:r.g>1.05?"Sin agua":"Mucha agua",v:r.tq.q}];
+  const f=[{k:"Muy chico",v:r.sz},{k:"Movido",v:Math.min(r.ws,Math.max(0.3,1-r.chop/0.8),r.qT)},{k:r.g>1.05?"Sin agua":"Mucha agua",v:r.tq.q}];
   return f.sort((a,b)=>a.v-b.v)[0].k;
 }
 function chipsFor(r,h){
   const c=[];
   if(r.dom){ const d=r.dom, tone=d.e>0.7?"good":d.e>0.4?"ok":"bad", tag=d.e>0.7?"entra directo":d.e>0.4?"entra a medias":"tapado";
     c.push({i:I.swell,t:`${d.k==="viento"?"Mar de viento":"Swell"} ${compass(d.d)} ${d.p.toFixed(0)}s · ${tag}`,tone}); }
-  const on=Math.cos(rad(angdiff(h.wd,NORMAL))), wf=windF(r.spot,h.wd);
-  if(on<=-0.3) c.push({i:I.wind,t:`${compass(h.wd)} ${Math.round(h.ws)} km/h · offshore`,tone:h.ws<30?"good":"ok"});
-  else if(wf<0.4) c.push({i:I.wind,t:`${compass(h.wd)} ${Math.round(h.ws)} km/h · reparado`,tone:"ok"});
-  else c.push({i:I.wind,t:`${compass(h.wd)} ${Math.round(h.ws)} km/h · ${on>0.5?"onshore":"cruzado"}`,tone:h.ws<10?"ok":"bad"});
+  if(r.qT<0.7) c.push({i:I.swell,t:`Mar desordenado · período ${r.Tm.toFixed(0)} s`,tone:"bad"});
+  const on=Math.cos(rad(angdiff(h.wd,NORMAL))), wv=windEff(h.ws,h.wg), wf=shelterF(r.spot,h.wd,wv);
+  const gtxt = h.wg && 0.65*h.wg>h.ws+3 ? ` (ráfagas ${Math.round(h.wg)})` : "";
+  if(on<=-0.3) c.push({i:I.wind,t:`${compass(h.wd)} ${Math.round(h.ws)} km/h${gtxt} · offshore`,tone:wv<30?"good":"ok"});
+  else if(wf<0.4) c.push({i:I.wind,t:`${compass(h.wd)} ${Math.round(h.ws)} km/h${gtxt} · reparado`,tone:"ok"});
+  else c.push({i:I.wind,t:`${compass(h.wd)} ${Math.round(h.ws)} km/h${gtxt} · ${on>0.5?"onshore":"cruzado"}`,tone:wv<10?"ok":"bad"});
   c.push({i:I.tide,t:`Marea ${r.ti.lvl} ${r.ti.rising?"↗":"↘"} · ${r.tq.txt}`,tone:r.tq.tone});
   if(r.bombeo) c.push({i:I.pump,t:"Cambio de marea: bombeo",tone:"good"});
   return c;
@@ -980,11 +995,11 @@ async function saveRating(){
   if(sel.stars==null){ toast("Elegí la calidad (0 si no se puede)"); return; }
   if(stars>0 && !sel.spot){ toast("Elegí el pico"); return; }
   const now=Date.now(), h=D.H[currentHourIdx()], spot=sel.spot||"ambos";
-  const P={}; SPOTS.forEach(sp=>{ const x=evalHour(h,sp); P[sp]={hb:+x.hb.toFixed(2), stars:x.stars, gamma:+x.g.toFixed(2), bombeo:x.bombeo, model:"v2"}; });
+  const P={}; SPOTS.forEach(sp=>{ const x=evalHour(h,sp); P[sp]={hb:+x.hb.toFixed(2), stars:x.stars, gamma:+x.g.toFixed(2), bombeo:x.bombeo, model:"v3"}; });
   const r=evalHour(h, sel.spot||(P.Biologia.stars>=P.Yacht.stars?"Biologia":"Yacht"));
   const rec={ ts:new Date(now).toISOString(), spot, size:sel.size||null, size_m:sel.size?SIZE_M[sel.size]:null, stars, mar:sel.mar||null, src:sel.src,
     forecast:{hour:h.t, parts:h.parts, wind:{spd:h.ws,dir:h.wd,gust:h.wg}, ww:h.ww, eta:r.ti.y, rising:r.ti.rising, min_to_turn:r.ti.near?Math.round(r.ti.near.dm):null, sst:h.sst},
-    pred:{hb:+r.hb.toFixed(2), stars:r.stars, gamma:+r.g.toFixed(2), bombeo:r.bombeo, model:"v2"}, pred_all:P };
+    pred:{hb:+r.hb.toFixed(2), stars:r.stars, gamma:+r.g.toFixed(2), bombeo:r.bombeo, model:"v3"}, pred_all:P };
   const all=getRatings(); all.push(rec); localStorage.setItem("pg_ratings",JSON.stringify(all));
   if(CFG.SHEETS_URL){ try{ await fetch(CFG.SHEETS_URL,{method:"POST",mode:"no-cors",body:JSON.stringify(rec)}); }catch(e){} }
   $("modal").classList.remove("open"); ["spot","size","stars","mar"].forEach(k=>delete sel[k]);

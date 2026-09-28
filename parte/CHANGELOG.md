@@ -2,6 +2,16 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-28 · Claude app — modelo v3: el mar de temporal ya no da estrellas
+- Maiky, con cámaras: hoy 09 h la app marcaba Biología 2.5★ / Yacht 1★ y 0.9–1.4 m, pero el mar estaba destruido, sin ese tamaño y no apto.
+- Causa (con los datos reales del 28/09): swell ESE 0.84 m a **5.7 s** + mar de viento 0.88 m a 3.6 s + NE 21 km/h con **ráfagas de 44**. La v2 trataba una ola de 5–6 s casi como un swell, ignoraba las ráfagas y daba a Biología por "reparado" con 44 km/h.
+- **Período medio del mar** (pesado por energía, incluye el mar de viento) → factor de calidad: 5 s 0.35 · 6 s 0.55 · 7 s 0.75 · 8 s 0.9 · 9 s+ 1. Chip "Mar desordenado · período N s".
+- **Tamaño según período**: cada componente rinde `0.5 + 0.125·(T−5)` (entre 0.5 y 1) de su altura como ola surfeable (antes: mar de viento ×0.6, swell ×1). Hoy pasa de 0.9–1.4 a 0.6–0.9 m; el 29/09 queda más cerca de Surfline.
+- **Ráfagas**: viento efectivo = máx(sostenido, 65 % de la ráfaga). El chip muestra "(ráfagas N)".
+- **Reparo de escollera** se pierde con viento fuerte (arriba de 15 km/h efectivos, hasta 60 % del reparo a 40 km/h).
+- Resultado: hoy 0–0.5★ en los dos picos; días de swell largo y viento terral siguen dando 3.5–5★.
+- `pred.model` → `"v3"`. Python (`model.py`) espejado. Test de regresión: 28/09 09:00 tiene que dar ≤1★.
+
 ## 2026-09-27 · Claude app — la app se actualiza sola + botón ↻
 - Maiky no veía las cámaras en la tablet: Fully deja la app abierta y solo se refrescaban los datos, nunca el código.
 - `build.py` calcula una versión (hash) y la escribe en la app y en `version.json`. La app mira `version.json` cada 5 min y al volver a primer plano; si hay versión nueva, se recarga sola (nunca con cámaras o un formulario abiertos: espera 1 min y reintenta).

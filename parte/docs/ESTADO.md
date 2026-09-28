@@ -1,10 +1,10 @@
 # Estado del proyecto
 
-**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-27 21:30 (Claude app).
+**Leer primero.** Actualizar al terminar cada tarea. Última actualización: 2026-09-28 (Claude app).
 
 ## Hecho
 - Geometría real de Playa Grande (OSM) y tablas de exposición/viento por pico (`model/`).
-- Modelo físico v2: 3 componentes de ola, sombra de escolleras, viento por fetch, marea con γ, bombeo (ver `docs/MODELO.md`).
+- Modelo físico v2 (ahora v3, ver abajo): 3 componentes de ola, sombra de escolleras, viento por fetch, marea con γ, bombeo (ver `docs/MODELO.md`).
 - App v2 (`src/app.template.html` → `index.html`): diseño nuevo con cielo según la hora, mar animado con datos reales, dial por pico, marea con ventanas de bombeo, clima, hoy + 2 días, "próxima buena", ratings con exportación.
 - Tests headless con datos reales (`tests/run.py`): 4 horarios, flujo de rating. Pasan.
 - Documentación y memoria compartida (este archivo, `CLAUDE.md`, `DECISIONES.md`, `CHANGELOG.md`).
@@ -12,6 +12,7 @@
 - **Fully Kiosk Browser** instalado (versión gratis): abre `https://ponkus.github.io/surfing/parte/?horario=0630-1200` (horario de Maiky) en pantalla completa y arranca solo al prender. La tablet mantiene PIN (Maiky): después de un reinicio hay que desbloquearla a mano. La depuración inalámbrica se apaga en cada reinicio (Android 11); el USB no sirve para ADB en esta tablet. Detalle y diagnóstico en `docs/tablet/`.
 - **Diseño v3 (27/09)**: legible a 2 m (tarjetas oscuras, tipografía grande), días tocables (el cuadro central muestra el día elegido; vuelve solo a "ahora" a los 90 s), clima del momento + aviso de lluvia, carga a prueba de cortes de Open-Meteo, arreglo del zoom en Fully. PRs #9–#11.
 - **Actualización automática** (27/09): la app se recarga sola cuando se publica una versión nueva (`version.json`, cada 5 min) + botón ↻. Desde esta versión no hace falta tocar la tablet para ver cambios.
+- **Modelo v3** (28/09): período medio del mar (calidad y tamaño), ráfagas, reparo que se pierde con viento fuerte. Corrige el 2.5★ que dio con mar de temporal el 28/09. Test de regresión incluido. PR `modelo-v3-periodo`.
 - **Publicada** en `https://ponkus.github.io/surfing/parte/` (PR #4). Probada en la tablet: fluida, pero se pisaba dentro de Chrome → arreglado (encaje 1280×800 escalado + pantalla completa + app instalable), en PR #5.
 
 ## En curso
@@ -31,6 +32,6 @@
 ## Abierto / dudas
 - Push/merge: desde el 27/09 **Claude hace el merge a `main`** (pedido de Maiky), con tests en OK. Claude Code en la Mac puede (usa `gh`). La app de Claude puede tener bloqueado mergear sin revisión humana: en ese caso, dejar el PR listo y avisar para que lo mergee Claude Code.
 - Netlify (`UNMDP/surfcam`) está conectado al repo y falla en cada PR porque busca la carpeta `surf2`, que no existe. No afecta a GitHub Pages. Arreglo: vaciar "Base directory" en Netlify o desconectarlo.
-- Sobreestimación de tamaño con mar corto (5–6 s): esperar ratings antes de tocar `SIZE_CAL`.
+- Sobreestimación con mar corto (5–6 s): corregida en v3 con coeficientes provisorios (`sizeT`, `periodQ`). Validar con ratings, sobre todo días de 6–7 s (el límite dudoso).
 - ¿Tamaño real de los bancos (`D_BAR`)? Se calibra con ratings.
 - ¿El bombeo es real o memoria selectiva? Se mide con ratings.
