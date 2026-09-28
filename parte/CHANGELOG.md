@@ -2,6 +2,12 @@
 
 Formato: `## fecha · quién` + qué cambió y por qué. Lo más nuevo arriba.
 
+## 2026-09-28 · Claude app — lineup en video dentro de la app, por proxy propio
+- Maiky descartó la página completa (abría el home, 3 toques hasta la cámara, sin forma de volver).
+- Proxy personal en Cloudflare Worker (`olas-cams`, cuenta de Maiky): pide el video a lineup como lineup.surf. Probado: las 4 cámaras dan 200 (playlist, chunklist, segmentos). Detalle en `docs/LINEUP_PROXY.md`.
+- La app vuelve al video directo de lineup, dividido o de a uno. La clave va en la URL de la tablet (`?lu=`), no en el código.
+- Con clave, las cámaras abren en **Lineup**; sin clave, en **Mis cámaras** y Lineup muestra un aviso.
+
 ## 2026-09-28 · Claude app — lineup se abre como página completa (se descarta el marco)
 - Maiky: en la tablet, "Tocar" no dejaba iniciar sesión (el toque hacía pantalla completa).
 - Problema de fondo: probado con la app publicada en el Chrome de Maiky, **logueado en lineup**: dentro del marco lineup pide registrarse. El navegador no le manda la sesión a una página de lineup metida en otra web, así que el marco no podía andar ni arreglando el botón.
